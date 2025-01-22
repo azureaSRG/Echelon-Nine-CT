@@ -42,13 +42,17 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
 
-        //Gets inputs 
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        //Prevents inputs from being retrived if not on ground 
+        if (inAir)
+        {
+            float x = Input.GetAxis("Horizontal");
+            float z = Input.GetAxis("Vertical");
+        }
+        
         Vector3 forward = Camera.transform.forward;
         Vector3 right = Camera.transform.right;
         
-        //Prevents movement from locking when z -> 0
+        //Prevents movement from locking when z -> 0 by returning a magnitude of 1; assisted by clamped camera rotation.
         forward.y = 0; // Remove the vertical component in the forward direction
         forward.Normalize(); // Ensure the vectors have a value of 1. The value is required to be 1, as a decimal or zero, would slow down or stop the player from moving. This allows the player to move in the same direction with different magnitude.
 
@@ -58,13 +62,9 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKey(KeyCode.LeftControl)) {speed = 9f;}
         else {speed = 12f;}
         
-
-        //Prevents player from moving while in midair
-        if (inAir)
-        {
-            Vector3 move = right * x + forward * z;
-            controller.Move(move * speed * Time.deltaTime);
-        }
+        //Continues moving player even if in air
+        Vector3 move = right * x + forward * z;
+        controller.Move(move * speed * Time.deltaTime);
 
         //Debug.Log(Camera.transform.forward);
         //Debug.Log(velocity.y);
