@@ -17,7 +17,7 @@ public class CasingEject : MonoBehaviour
         myRigidbody.AddForce(transform.right * forceApplied);
         myRigidbody.AddTorque(Random.insideUnitSphere * forceApplied);
 
-        
+        //Initilizes Fade Function
         StartCoroutine(Fade());
     }
 
