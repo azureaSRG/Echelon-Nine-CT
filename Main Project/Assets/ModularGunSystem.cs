@@ -24,7 +24,7 @@ public class ModularGunSystem : MonoBehaviour
     public bool fullAuto;
 
     //Magazine Information
-    private int[] magList;
+    private int[] magList = new int[] {0};
 
     //Damage Information
     public int headDamage, bodyDamage, legDamage, armDamage;
@@ -63,7 +63,6 @@ public class ModularGunSystem : MonoBehaviour
 
     //Bullet Collision Detection
     public RaycastHit rayHit;
-
     
     private void ResetShooting()
     {
@@ -73,9 +72,9 @@ public class ModularGunSystem : MonoBehaviour
     private void RefillAmmo()
     {
         magazinesLeft = magazineReserves;
-        for (x = 0, x >= magazineReserves, x++)
+        for (int x = 0; x >= magazineReserves; x++)
         {
-            magList new[] = magazineSize
+            magList = new int[] { magazineSize };
         }
     }
     //Receives input
@@ -106,7 +105,6 @@ public class ModularGunSystem : MonoBehaviour
     //Sets reloading and delays reload finsihed function by time
     private void Reload()
     {
-        Array.Sort(magList);
         reloading = true;
         Invoke("ReloadFinished", reloadTime);
 
