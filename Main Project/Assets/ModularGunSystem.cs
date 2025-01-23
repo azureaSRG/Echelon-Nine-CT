@@ -56,6 +56,10 @@ public class ModularGunSystem : MonoBehaviour
     private int magazinesLeft, bulletsLeft, bulletsShot, bulletsPerTap;
     private bool shooting, readyToShoot, reloading;
 
+    //Malfunctions
+    private bool isMalfunction;
+    private int malfunctionType;
+
     //References
     public Camera fpsCam;
     public Transform attackPoint;
@@ -99,7 +103,6 @@ public class ModularGunSystem : MonoBehaviour
             bulletsShot = bulletsPerTap;
             Shoot();
         }
-
     }
     
     //Sets reloading and delays reload finsihed function by time
@@ -115,7 +118,7 @@ public class ModularGunSystem : MonoBehaviour
     {
         readyToShoot = false;
 
-        //Spread
+        //Spread/Accuracy
         float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
         float spreadY = Random.Range(-verticalSpread, verticalSpread);
 
@@ -123,7 +126,8 @@ public class ModularGunSystem : MonoBehaviour
 
         //Clones Shell Casings
         Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation);
-
+        checkMalfunction(probabilityOfMalfunction, 1)
+        
         //Raycast
         if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef))
         {
@@ -143,12 +147,16 @@ public class ModularGunSystem : MonoBehaviour
         //Executes function with delay
         Invoke("ResetShooting", timeBetweenShots);
 
-        if (bulletsShot > 0 && bulletsLeft > 0 && magazinesLeft > 0)
+        if (bulletsShot > 0 && bulletsLeft > 0 && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
             Invoke("Shoot", timeBetweenShots);
         }
 
+        else if (isMalfunction)
+        {
+            Debug.Log("Gun Malfunction");
+        }
     }
 
     // Start is called before the first frame update
@@ -161,11 +169,61 @@ public class ModularGunSystem : MonoBehaviour
     //Sets bullets left to the mag size then sets reloading to false
     private void ReloadFinished()
     {
+        if (bulletsLeft = 0)
+        {
+            magazinesLeft--;   
+        }
+        
         bulletsLeft = magazineSize;
         reloading = false;
-        magazinesLeft--;
+    }
+    
+    private void fixMalfunction()
+    {
+        isMalfunction = false;
     }
 
+    private int checkMalfunction(float malChance, float damage)
+    {
+        chanceOfMalfunction = 1 - (malChance);
+        random = Random.Range(0,1);
+        if (random >= chanceOfMalfunction)
+        {
+            Debug.Log("Misfire Malfunction")l
+        }
+        
+        chanceOfMalfunction = 1 - (malChance + damage);
+        random = Random.Range(0,1);
+        if (random >= chanceOfMalfunction)
+        {
+            /*
+            1 Failure to Feed
+            2 Failure to Eject
+            3 Failure to Extract
+            4 Out of Battery
+            5 Misfire
+            */
+            Debug.Log("Weapon Malfunction");
+            /*
+            if (damage > value)
+            {
+                Debug.Log("Failure to");
+            }
+            
+            else if (damage > value)
+            {
+                Debug.Log("Failure to");
+            }
+
+            ...
+            */
+        }
+        else
+        {
+            Debug.Log("Malfunciton Check Failed");
+        }
+    }
+    
     // Update is called once per frame
     void Update()
     {
