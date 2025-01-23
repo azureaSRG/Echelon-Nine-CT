@@ -23,6 +23,9 @@ public class ModularGunSystem : MonoBehaviour
     public int magazineReserves;
     public bool fullAuto;
 
+    //Magazine Information
+    private int[] magList;
+
     //Damage Information
     public int headDamage, bodyDamage, legDamage, armDamage;
     public float armorPenetration;
@@ -50,7 +53,7 @@ public class ModularGunSystem : MonoBehaviour
     These variables are changed based on the usage
     */
 
-    private int bulletsLeft, bulletsShot, bulletsPerTap;
+    private int magazinesLeft, bulletsLeft, bulletsShot, bulletsPerTap;
     private bool shooting, readyToShoot, reloading;
 
     //References
@@ -66,7 +69,15 @@ public class ModularGunSystem : MonoBehaviour
     {
         readyToShoot = true;
     }
-
+    
+    private void RefillAmmo()
+    {
+        magazinesLeft = magazineReserves;
+        for (x = 0, x >= magazineReserves, x++)
+        {
+            magList new[] = magazineSize
+        }
+    }
     //Receives input
     private void MyInput()
     {
@@ -95,6 +106,7 @@ public class ModularGunSystem : MonoBehaviour
     //Sets reloading and delays reload finsihed function by time
     private void Reload()
     {
+        Array.Sort(magList);
         reloading = true;
         Invoke("ReloadFinished", reloadTime);
 
@@ -130,10 +142,12 @@ public class ModularGunSystem : MonoBehaviour
         bulletsLeft--;
         bulletsShot--;
 
+        //Executes function with delay
         Invoke("ResetShooting", timeBetweenShots);
 
-        if (bulletsShot > 0 && bulletsLeft > 0)
+        if (bulletsShot > 0 && bulletsLeft > 0 && magazinesLeft > 0)
         {
+            //Executes the shoot function and has cooldown of firerate (TBS)
             Invoke("Shoot", timeBetweenShots);
         }
 
@@ -151,7 +165,7 @@ public class ModularGunSystem : MonoBehaviour
     {
         bulletsLeft = magazineSize;
         reloading = false;
-        magazineReserves--;
+        magazinesLeft--;
     }
 
     // Update is called once per frame
