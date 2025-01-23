@@ -101,7 +101,7 @@ public class ModularGunSystem : MonoBehaviour
         }
 
     }
-
+    
     //Sets reloading and delays reload finsihed function by time
     private void Reload()
     {

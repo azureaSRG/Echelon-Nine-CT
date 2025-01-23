@@ -20,7 +20,6 @@ public class PlayerMovement : MonoBehaviour
     Vector3 velocity;
     bool isGrounded;
     bool inAir;
-
     float x, z;
 
     // Start is called before the first frame update
@@ -62,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift)) {speed = 15f;}
         else if (Input.GetKey(KeyCode.LeftControl)) {speed = 9f;}
         else {speed = 12f;}
-        
+
         //Continues moving player even if in air
         Vector3 move = right * x + forward * z;
         controller.Move(move * speed * Time.deltaTime);
