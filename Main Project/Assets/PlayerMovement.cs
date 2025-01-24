@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 velocity;
     bool isGrounded;
     bool inAir;
-    float x, z;
+
 
     // Start is called before the first frame update
     void Start()
@@ -42,12 +42,9 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
 
-        //Prevents inputs from being retrived if not on ground 
-        if (inAir)
-        {
-            float x = Input.GetAxis("Horizontal");
-            float z = Input.GetAxis("Vertical");
-        }
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+        
         
         Vector3 forward = Camera.transform.forward;
         Vector3 right = Camera.transform.right;

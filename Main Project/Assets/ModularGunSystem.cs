@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class ModularGunSystem : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class ModularGunSystem : MonoBehaviour
     public float timeBetweenShots, muzzleVelocity, effectiveRange, maxRange;
 
     //Gun Information
-    public float cost, mass, probabiltyOfMalfunction;
+    public float cost, mass, probabilityOfMalfunction;
 
     //Recoil Information
     public float horizontalRecoil;
@@ -67,7 +68,21 @@ public class ModularGunSystem : MonoBehaviour
 
     //Bullet Collision Detection
     public RaycastHit rayHit;
-    
+
+
+    //Trails
+    public Material Material;
+    public AnimationCurve WidthCurve;
+    public float Duration = 0.5f;
+    public float MinVertexDistance = 0.1f;
+    public Gradient Color;
+    public Transform TrailLeave;
+    //public ImpactType ImpactType;
+
+    public float MissDistance = 100f;
+    public float SimulationSpeed = 200f;
+    private ObjectPool<TrailRenderer> TrailPool;
+
     private void ResetShooting()
     {
         readyToShoot = true;
@@ -93,9 +108,14 @@ public class ModularGunSystem : MonoBehaviour
             shooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
 
-        if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !reloading)
+        if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !reloading && !isMalfunction)
         {
             Reload();
+        }
+
+        else if (Input.GetKeyDown(KeyCode.R) && isMalfunction)
+        {
+            fixMalfunction();
         }
 
         if (readyToShoot && shooting && !reloading && bulletsLeft > 0)
@@ -125,20 +145,27 @@ public class ModularGunSystem : MonoBehaviour
         Vector3 direction = fpsCam.transform.forward + new Vector3(spreadX, spreadY, 0);
 
         //Clones Shell Casings
-        Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation);
-        checkMalfunction(probabilityOfMalfunction, 1)
-        
+        if (!isMalfunction) { Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation); }
+        checkMalfunction(probabilityOfMalfunction, 0f);
+
         //Raycast
         if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef))
         {
             Debug.Log(rayHit.collider.name);
             Debug.Log("Raycast Hit");
+
+            StartCoroutine(PlayTrail(fpsCam.transform.position, rayHit.point, rayHit));
             /*
             if (rayHit.collider.CompareTag("Enemy"))
             {
                 rayHit.collider.GetComponent<ShootingAi>().TakeDamage(headDamage);
             }
             */
+        }
+
+        else 
+        { 
+            StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit() )); 
         }
 
         bulletsLeft--;
@@ -150,6 +177,7 @@ public class ModularGunSystem : MonoBehaviour
         if (bulletsShot > 0 && bulletsLeft > 0 && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
+            
             Invoke("Shoot", timeBetweenShots);
         }
 
@@ -164,12 +192,32 @@ public class ModularGunSystem : MonoBehaviour
     {
         bulletsLeft = magazineSize;
         readyToShoot = true;
+
+        TrailPool = new ObjectPool<TrailRenderer>(
+        CreateTrail,
+        trail =>
+        {
+            trail.gameObject.SetActive(true);
+            trail.emitting = false;
+        },
+        trail =>
+        {
+            trail.gameObject.SetActive(false);
+        },
+        trail =>
+        {
+            Destroy(trail.gameObject);
+        },
+        false, // collectionCheck
+        10,    // defaultCapacity
+        50     // maxSize
+    );
     }
 
     //Sets bullets left to the mag size then sets reloading to false
     private void ReloadFinished()
     {
-        if (bulletsLeft = 0)
+        if (bulletsLeft == 0)
         {
             magazinesLeft--;   
         }
@@ -183,18 +231,20 @@ public class ModularGunSystem : MonoBehaviour
         isMalfunction = false;
     }
 
-    private int checkMalfunction(float malChance, float damage)
+    private void checkMalfunction(float malChance, float damage)
     {
-        chanceOfMalfunction = 1 - (malChance);
-        random = Random.Range(0,1);
-        if (random >= chanceOfMalfunction)
+        float chanceOfMalfunction = 1 - (malChance);
+        float random = Random.Range(0f,1f);
+        Debug.Log(random);
+        if (random > chanceOfMalfunction)
         {
-            Debug.Log("Misfire Malfunction")l
+            Debug.Log("Misfire Malfunction");
         }
         
         chanceOfMalfunction = 1 - (malChance + damage);
-        random = Random.Range(0,1);
-        if (random >= chanceOfMalfunction)
+        random = Random.Range(0f,1f);
+        Debug.Log(random);
+        if (random > chanceOfMalfunction)
         {
             /*
             1 Failure to Feed
@@ -204,6 +254,7 @@ public class ModularGunSystem : MonoBehaviour
             5 Misfire
             */
             Debug.Log("Weapon Malfunction");
+            isMalfunction = true;
             /*
             if (damage > value)
             {
@@ -223,7 +274,57 @@ public class ModularGunSystem : MonoBehaviour
             Debug.Log("Malfunciton Check Failed");
         }
     }
-    
+
+
+    //Trail Renderers
+    private TrailRenderer CreateTrail()
+    {
+        GameObject instance = new GameObject("Bullet Trail");
+        TrailRenderer trail = instance.AddComponent<TrailRenderer>();
+        trail.colorGradient = Color;
+        trail.material = Material;
+        trail.widthCurve = WidthCurve;
+        trail.minVertexDistance = MinVertexDistance;
+        
+        trail.emitting = false;
+        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        return trail;
+    }
+
+    private IEnumerator PlayTrail(Vector3 StartPoint, Vector3 EndPoint, RaycastHit Hit)
+    {
+        TrailRenderer instance = TrailPool.Get();
+        instance.gameObject.SetActive(true);
+        instance.transform.position = StartPoint;
+        instance.Clear();
+        yield return null;
+
+        instance.emitting = true;
+
+        float distance = Vector3.Distance(StartPoint, EndPoint);
+        float remainingDistance = distance;
+        while (remainingDistance > 0f)
+        {
+            instance.transform.position = Vector3.Lerp(StartPoint, EndPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));
+            remainingDistance -= SimulationSpeed * Time.deltaTime;
+
+            yield return null;
+        }
+
+        instance.transform.position = EndPoint;
+
+        if (Hit.collider != null)
+        {
+            //SurfaceManager.Instance.HandleImpact(Hit.transform.gameObject, EndPoint, Hit.normal, ImpactType, 0);
+        }
+
+        yield return new WaitForSeconds(Duration);
+        yield return null;
+        instance.emitting = false;
+        instance.gameObject.SetActive(false);
+        TrailPool.Release(instance);
+    }
     // Update is called once per frame
     void Update()
     {
