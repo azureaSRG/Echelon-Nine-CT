@@ -149,23 +149,26 @@ public class ModularGunSystem : MonoBehaviour
         checkMalfunction(probabilityOfMalfunction, 0f);
 
         //Raycast
-        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef))
+        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef) && (!isMalfunction))
         {
             Debug.Log(rayHit.collider.name);
             Debug.Log("Raycast Hit");
 
             StartCoroutine(PlayTrail(fpsCam.transform.position, rayHit.point, rayHit));
-            /*
+           /*
             if (rayHit.collider.CompareTag("Enemy"))
             {
-                rayHit.collider.GetComponent<ShootingAi>().TakeDamage(headDamage);
+                rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
             }
             */
         }
 
         else 
         { 
-            StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit() )); 
+            if (!isMalfunction)
+            {
+                StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit()));
+            }
         }
 
         bulletsLeft--;
@@ -308,7 +311,6 @@ public class ModularGunSystem : MonoBehaviour
         {
             instance.transform.position = Vector3.Lerp(StartPoint, EndPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));
             remainingDistance -= SimulationSpeed * Time.deltaTime;
-
             yield return null;
         }
 
