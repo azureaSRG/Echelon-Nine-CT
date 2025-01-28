@@ -23,7 +23,7 @@ public class EnemyAIScrpit : MonoBehaviour
     //Patrolling
     public Vector3 walkPoint;
     bool walkPointSet;
-    float walkPointRange;
+    float walkPointRange = 1f;
 
     //Attacking
     public float timeBetweenShots;
@@ -69,9 +69,9 @@ public class EnemyAIScrpit : MonoBehaviour
         }
         
         // Enemy wanders randomly
-        else
+        else if (isWandering)
         {
-            if (walkPointSet)
+            if (!walkPointSet)
             {
                 searchWalkPoint();
             }
