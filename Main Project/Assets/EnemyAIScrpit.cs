@@ -3,6 +3,8 @@ using UnityEngine.AI;
 
 public class EnemyAIScrpit : MonoBehaviour
 {
+
+    //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
     public NavMeshAgent agent;
     public Transform player;
 
@@ -42,6 +44,11 @@ public class EnemyAIScrpit : MonoBehaviour
         walkPointSet = true;
     }
 
+    private void switchPointDirection()
+    {
+        
+    }
+
     private void patrolling()
     {
         // There are two cases: Enemy wonders randomly or between two points
@@ -67,7 +74,7 @@ public class EnemyAIScrpit : MonoBehaviour
                 }
             }
         }
-        
+
         // Enemy wanders randomly
         else if (isWandering)
         {
@@ -135,6 +142,7 @@ public class EnemyAIScrpit : MonoBehaviour
 
     private void Update()
     {
+        
         //Check Sight
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerMask);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
@@ -154,7 +162,7 @@ public class EnemyAIScrpit : MonoBehaviour
         {
             attacking();
         }
-
+        Debug.Log(playerInSightRange);
     }
 
     public void takeDamage()
