@@ -44,9 +44,25 @@ public class EnemyAIScrpit : MonoBehaviour
         walkPointSet = true;
     }
 
+    
     private void switchPointDirection()
     {
-        
+        if (!pointDirection)
+        {
+            agent.SetDestination(vectorEnd);
+            if (Mathf.Abs((transform.position.x - endingPatrolPoint.position.x) + (transform.position.z - endingPatrolPoint.position.z)) < 1)
+            {
+                pointDirection = true;
+            }
+        }
+        else
+        {
+            agent.SetDestination(vectorStart);
+            if (Mathf.Abs(transform.position.x - startingPatrolPoint.position.x) + (transform.position.z - startingPatrolPoint.z)) < 1)
+            {
+                pointDirection = false;
+            }
+        }
     }
 
     private void patrolling()
@@ -55,24 +71,7 @@ public class EnemyAIScrpit : MonoBehaviour
         // Enemy wanders between two predetermined points
         if (!isWandering)
         {
-            if (!pointDirection)
-            {
-                agent.SetDestination(vectorEnd);
-                Vector3 distanceToWalkPoint = transform.position - endingPatrolPoint.position;
-                if (Mathf.Abs((transform.position.x - endingPatrolPoint.position.x) + (transform.position.z - endingPatrolPoint.position.z)) < 1)
-                {
-                    pointDirection = true;
-                }
-            }
-            else if (pointDirection)
-            {
-                agent.SetDestination(vectorStart);
-                Vector3 distanceToWalkPoint = transform.position - startingPatrolPoint.position;
-                if (Mathf.Abs((transform.position.x - startingPatrolPoint.position.x) + (transform.position.z - startingPatrolPoint.position.z)) < 1)
-                {
-                    pointDirection = false;
-                }
-            }
+            Invoke("switchPointDirection", 20f);
         }
 
         // Enemy wanders randomly
