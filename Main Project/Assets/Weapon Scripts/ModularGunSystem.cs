@@ -22,6 +22,7 @@ public class ModularGunSystem : MonoBehaviour
     public string caliber;
     public int magazineSize;
     public int magazineReserves;
+    public bool fullAutoAllowed;
     public bool fullAuto;
 
     //Magazine Information
@@ -99,6 +100,7 @@ public class ModularGunSystem : MonoBehaviour
     //Receives input
     private void MyInput()
     {
+        //Checks input based on full auto or not
         if (fullAuto)
         {
             shooting = Input.GetKey(KeyCode.Mouse0);
@@ -108,6 +110,14 @@ public class ModularGunSystem : MonoBehaviour
             shooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
 
+        //Changes firemode
+        if (Input.GetKeyDown(KeyCode.V) && fullAutoAllowed)
+        {
+            if (fullAuto) { fullAuto = false; }
+            else { fullAuto = true; }
+        }
+
+        //Reload or fix malfunctions
         if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !reloading && !isMalfunction)
         {
             Reload();
@@ -154,7 +164,7 @@ public class ModularGunSystem : MonoBehaviour
             Debug.Log(rayHit.collider.name);
             Debug.Log("Raycast Hit");
 
-            StartCoroutine(PlayTrail(fpsCam.transform.position, rayHit.point, rayHit));
+            StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
            /*
             if (rayHit.collider.CompareTag("Enemy"))
             {

@@ -250,6 +250,7 @@ MonoBehaviour:
   caliber: 9mm
   magazineSize: 10000
   magazineReserves: 10
+  fullAutoAllowed: 0
   fullAuto: 1
   headDamage: 30
   bodyDamage: 50
@@ -735,7 +736,7 @@ Transform:
   m_GameObject: {fileID: 577498583}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -36.8, y: 1.65, z: -1.17}
+  m_LocalPosition: {x: 17.98, y: 1.65, z: -1.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -762,6 +763,7 @@ MonoBehaviour:
   isWandering: 0
   maxhealth: 0
   armor: 0
+  stopTime: 10
   damage: 0
   groundMask:
     serializedVersion: 2
@@ -770,11 +772,77 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   walkPoint: {x: 0, y: 0, z: 0}
-  timeBetweenShots: 0
-  sightRange: 30
-  attackRange: 5.04
+  timeBetweenShots: 0.21
+  sightRange: 51.2
+  attackRange: 18.85
   playerInSightRange: 0
   playerInAttackRange: 0
+  horizontalSpread: 0
+  verticalSpread: 0
+  range: 425
+  magCapacity: 32
+  reloadTime: 2.14
+  bulletsLeft: 0
+  bulletsShot: 0
+  Material: {fileID: 2100000, guid: 1ba33796b5df71949b58776d85928fe1, type: 2}
+  WidthCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.1529541
+      inSlope: 0.027797451
+      outSlope: 0.027797451
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.15398616
+    - serializedVersion: 3
+      time: 1.0064392
+      value: 0.04941559
+      inSlope: -0.116990685
+      outSlope: -0.116990685
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.28089377
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Duration: 0.5
+  MinVertexDistance: 0.1
+  Color:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  MissDistance: 100
+  SimulationSpeed: 499
 --- !u!195 &577498593
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1653,7 +1721,7 @@ Transform:
   m_GameObject: {fileID: 1609047818}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 18.13, y: 2.2, z: 40.6}
+  m_LocalPosition: {x: 18.13, y: 2.2, z: 13.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

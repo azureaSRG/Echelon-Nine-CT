@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Pool;
 
 public class EnemyAIScrpit : MonoBehaviour
 {
@@ -17,6 +20,7 @@ public class EnemyAIScrpit : MonoBehaviour
     public bool isWandering = false;
 
     public float maxhealth, armor;
+    public int stopTime;
     private float health;
     public float damage;
 
@@ -35,6 +39,31 @@ public class EnemyAIScrpit : MonoBehaviour
     public float sightRange, attackRange;
     public bool playerInSightRange, playerInAttackRange;
 
+    //Enemy Shooting
+    public float horizontalSpread, verticalSpread;
+    public RaycastHit rayHit;
+    public int range;
+    public int magCapacity;
+    public float reloadTime;
+
+    private bool reloading;
+    [SerializeField]
+    private int bulletsLeft, bulletsShot;
+
+
+    //Trails
+    public Material Material;
+    public AnimationCurve WidthCurve;
+    public float Duration = 0.5f;
+    public float MinVertexDistance = 0.1f;
+    public Gradient Color;
+    //public ImpactType ImpactType;
+
+    public float MissDistance = 100f;
+    public float SimulationSpeed = 200f;
+    private ObjectPool<TrailRenderer> TrailPool;
+
+
     private void Awake()
     {
         player = GameObject.Find("Player").transform;
@@ -44,7 +73,7 @@ public class EnemyAIScrpit : MonoBehaviour
         walkPointSet = true;
     }
 
-    
+    //PATROLLING STATE
     private void switchPointDirection()
     {
         if (!pointDirection)
@@ -58,10 +87,25 @@ public class EnemyAIScrpit : MonoBehaviour
         else
         {
             agent.SetDestination(vectorStart);
-            if (Mathf.Abs(transform.position.x - startingPatrolPoint.position.x) + (transform.position.z - startingPatrolPoint.z)) < 1)
+            if (Mathf.Abs((transform.position.x - startingPatrolPoint.position.x) + (transform.position.z - startingPatrolPoint.position.z)) < 1)
             {
                 pointDirection = false;
             }
+        }
+    }
+
+    //Enemy searchs for random point to walk
+    private void searchWalkPoint()
+    {
+        float randomZ = Random.Range(-walkPointRange, walkPointRange);
+        float randomX = Random.Range(-walkPointRange, walkPointRange);
+
+        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+
+        //Checks if in bounds
+        if (Physics.Raycast(walkPoint, -transform.up, 2f, groundMask))
+        {
+            walkPointSet = true;
         }
     }
 
@@ -71,7 +115,7 @@ public class EnemyAIScrpit : MonoBehaviour
         // Enemy wanders between two predetermined points
         if (!isWandering)
         {
-            Invoke("switchPointDirection", 20f);
+            Invoke("switchPointDirection", 0f);
         }
 
         // Enemy wanders randomly
@@ -95,29 +139,14 @@ public class EnemyAIScrpit : MonoBehaviour
             }
         }
     }
-    
-    //Enemy searchs for random point to walk
-    private void searchWalkPoint()
-    {
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
-        float randomX = Random.Range(-walkPointRange, walkPointRange);
 
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
-
-        //Checks if in bounds
-        if (Physics.Raycast(walkPoint, -transform.up, 2f, groundMask))
-        {
-            walkPointSet = true;
-        }
-    }
-
-    //Chases player
+    //CHASING STATE
     private void chasing()
     {
         agent.SetDestination(player.position);
     }
 
-    //Attacks player
+    //ATTACK STATE
     private void attacking()
     {
         agent.SetDestination(transform.position);
@@ -125,18 +154,146 @@ public class EnemyAIScrpit : MonoBehaviour
 
         if (!alreadyShot)
         {
-            //Attacking Code
-            //ATTACKING CODE HERE
-            //End
-
-            alreadyShot = true;
-            Invoke(nameof(resetShooting), timeBetweenShots);
+            shoot();
         }
+    }
+
+    //SHOOTING
+    private void shoot()
+    {
+        alreadyShot = true;
+
+        //Spread
+        float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
+        float spreadY = Random.Range(-verticalSpread, verticalSpread);
+
+        Vector3 direction = transform.forward + new Vector3(spreadX, spreadY, 0);
+
+        if (bulletsLeft > 0)
+        {
+            StartCoroutine(PlayTrail(transform.position, rayHit.point, rayHit));
+            Debug.Log(bulletsLeft);
+        }
+        
+
+        if (Physics.Raycast(transform.position, direction, out rayHit, range, playerMask))
+        {
+            /*
+             if (rayHit.collider.CompareTag("Enemy"))
+             {
+                 rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
+             }
+             */
+        }
+
+        Invoke("resetShooting", timeBetweenShots);
+
+        if (bulletsShot > 0 && bulletsLeft > 0)
+        {
+            //Executes the shoot function and has cooldown of firerate (TBS)
+
+            Invoke("shoot", timeBetweenShots);
+        }
+        else if (bulletsLeft < 0 && !reloading)
+        {
+            Reload();
+        }
+
+        bulletsLeft--;
     }
 
     private void resetShooting()
     {
         alreadyShot = false;
+    }
+
+    // RELOADING
+    private void Reload()
+    {
+        reloading = true;
+        Invoke("ReloadFinished", reloadTime);
+    }
+
+    private void ReloadFinished()
+    {
+        bulletsLeft = magCapacity;
+        reloading = false;
+    }
+
+    // TRAILS
+    private TrailRenderer CreateTrail()
+    {
+        GameObject instance = new GameObject("Bullet Trail");
+        TrailRenderer trail = instance.AddComponent<TrailRenderer>();
+        trail.colorGradient = Color;
+        trail.material = Material;
+        trail.widthCurve = WidthCurve;
+        trail.minVertexDistance = MinVertexDistance;
+
+        trail.emitting = false;
+        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        return trail;
+    }
+
+    //BULLET TRAILS
+    private IEnumerator PlayTrail(Vector3 StartPoint, Vector3 EndPoint, RaycastHit Hit)
+    {
+        TrailRenderer instance = TrailPool.Get();
+        instance.gameObject.SetActive(true);
+        instance.transform.position = StartPoint;
+        instance.Clear();
+        yield return null;
+
+        instance.emitting = true;
+
+        float distance = Vector3.Distance(StartPoint, EndPoint);
+        float remainingDistance = distance;
+        while (remainingDistance > 0f)
+        {
+            instance.transform.position = Vector3.Lerp(StartPoint, EndPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));
+            remainingDistance -= SimulationSpeed * Time.deltaTime;
+            yield return null;
+        }
+
+        instance.transform.position = EndPoint;
+
+        if (Hit.collider != null)
+        {
+            //SurfaceManager.Instance.HandleImpact(Hit.transform.gameObject, EndPoint, Hit.normal, ImpactType, 0);
+        }
+
+        yield return new WaitForSeconds(Duration);
+        yield return null;
+        instance.emitting = false;
+        instance.gameObject.SetActive(false);
+        TrailPool.Release(instance);
+    }
+
+
+    private void Start()
+    {
+        bulletsLeft = magCapacity;
+
+        TrailPool = new ObjectPool<TrailRenderer>(
+        CreateTrail,
+        trail =>
+        {
+            trail.gameObject.SetActive(true);
+            trail.emitting = false;
+        },
+        trail =>
+        {
+            trail.gameObject.SetActive(false);
+        },
+        trail =>
+        {
+            Destroy(trail.gameObject);
+        },
+        false, // collectionCheck
+        10,    // defaultCapacity
+        50     // maxSize
+    );
     }
 
     private void Update()
@@ -161,7 +318,6 @@ public class EnemyAIScrpit : MonoBehaviour
         {
             attacking();
         }
-        Debug.Log(playerInSightRange);
     }
 
     public void takeDamage()
@@ -172,13 +328,5 @@ public class EnemyAIScrpit : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    private void testing()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, sightRange);
     }
 }
