@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Pool;
 
-public class EnemyAIScrpit : MonoBehaviour
+public class GuardAI : MonoBehaviour
 {
 
     //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
@@ -17,6 +17,7 @@ public class EnemyAIScrpit : MonoBehaviour
     public Vector3 vectorStart;
     public Vector3 vectorEnd;
     private bool pointDirection = false;
+    public bool stationary = false;
     public bool isWandering = false;
 
     public float maxhealth, armor;
@@ -149,12 +150,19 @@ public class EnemyAIScrpit : MonoBehaviour
     //ATTACK STATE
     private void attacking()
     {
-        agent.SetDestination(transform.position);
-        transform.LookAt(player);
-
-        if (!alreadyShot)
+        if (HasClearShot())
         {
-            shoot();
+            agent.SetDestination(transform.position);
+            transform.LookAt(player);
+
+            if (!alreadyShot)
+            {
+                shoot();
+            }
+        }
+        else
+        {
+            FindBetterPosition();
         }
     }
 
@@ -327,6 +335,29 @@ public class EnemyAIScrpit : MonoBehaviour
         if (health < 0)
         {
             Destroy(gameObject);
+        }
+    }
+
+    private bool HasClearShot()
+    {
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, attackRange))
+        {
+            return hit.collider.CompareTag("Player"); // Ensure it actually hits the player
+        }
+        return false;
+    }
+
+    private void FindBetterPosition()
+    {
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        Vector3 offset = Vector3.Cross(directionToPlayer, Vector3.up).normalized * 3f; // Offset to move sideways
+        Vector3 newPosition = transform.position + offset;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(newPosition, out hit, 3f, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
         }
     }
 }
