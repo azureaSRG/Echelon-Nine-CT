@@ -11,32 +11,16 @@ public class PlayerStats : MonoBehaviour
     protected int maxHealth;
     [SerializeField]
     protected bool alive;
-
-    public bool playerInStealth;
-    public int phase = 0;
-    /*
-    Stealth Phases
-    0: Stealth
-    1: Suspicion
-    2: Search
-    3: Alert
-
-    Engagement Phases
-    0: Contact
-    1: First Strike
-    2: Engagement
-    3: Reinforcements
-    4: Final Attack
-    ! 5 & 6 are exclusive events
-    5: Neutralization
-    6: Retreat
-    */
+    [SerializeField]
+    protected int experience;
+    [SerializeField]
+    protected int playerLevel;
 
     public void checkHealth()
     {
         if (health < 0)
         {
-            alive = false;
+            isDead();
             health = 0;
         }
 
@@ -45,6 +29,17 @@ public class PlayerStats : MonoBehaviour
             health = maxHealth;
         }
 
+    }
+
+    public void isDead()
+    {
+        alive = false;
+    }
+
+    public void damagePlayer(int damage)
+    {
+        int damagedHealth = health -= damage;
+        health = damagedHealth;
     }
 
 

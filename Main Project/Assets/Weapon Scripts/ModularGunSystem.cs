@@ -27,6 +27,7 @@ public class ModularGunSystem : MonoBehaviour
 
     //Magazine Information
     private int[] magList = new int[] {0};
+    private bool isChambered = true;
 
     //Damage Information
     public int headDamage, bodyDamage, legDamage, armDamage;
@@ -43,17 +44,18 @@ public class ModularGunSystem : MonoBehaviour
     public float verticalRecoil;
 
     //Handling Information
-    public float reloadTime, adsTime, equipSpeed;
+    public float fullReloadTime,partialReloadTime, adsTime, equipSpeed;
 
     //Accuracy Information
     public float horizontalSpread;
     public float verticalSpread;
-    
 
     /*
     Weapon Specific Information:
     These variables are changed based on the usage
     */
+
+    private float firingSpread;
 
     private int magazinesLeft, bulletsLeft, bulletsShot, bulletsPerTap;
     private bool shooting, readyToShoot, reloading;
@@ -109,6 +111,16 @@ public class ModularGunSystem : MonoBehaviour
         {
             shooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
+        
+        if ((!shooting | bulletsLeft <= 0) && firingSpread > 0)
+        {
+            firingSpread -= (0.03f * Time.deltaTime);
+        }
+
+        else
+        {
+            firingSpread += (0.03f * Time.deltaTime);
+        }
 
         //Changes firemode
         if (Input.GetKeyDown(KeyCode.V) && fullAutoAllowed)
@@ -139,7 +151,11 @@ public class ModularGunSystem : MonoBehaviour
     private void Reload()
     {
         reloading = true;
-        Invoke("ReloadFinished", reloadTime);
+        if (bulletsLeft > 0) {
+            Invoke("ReloadFinished", partialReloadTime); }
+        else {
+            Invoke("ReloadFinished", fullReloadTime); 
+        }
 
     }
 
@@ -149,8 +165,8 @@ public class ModularGunSystem : MonoBehaviour
         readyToShoot = false;
 
         //Spread/Accuracy
-        float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
-        float spreadY = Random.Range(-verticalSpread, verticalSpread);
+        float spreadX = Random.Range(-horizontalSpread-firingSpread, horizontalSpread+firingSpread);
+        float spreadY = Random.Range(-verticalSpread-firingSpread, verticalSpread+firingSpread);
 
         Vector3 direction = fpsCam.transform.forward + new Vector3(spreadX, spreadY, 0);
 
@@ -187,11 +203,15 @@ public class ModularGunSystem : MonoBehaviour
         //Executes function with delay
         Invoke("ResetShooting", timeBetweenShots);
 
-        if (bulletsShot > 0 && bulletsLeft > 0 && magazinesLeft > 0 && !isMalfunction)
+        if (bulletsShot > 0  && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
             
             Invoke("Shoot", timeBetweenShots);
+            if (bulletsLeft <= 0)
+            {
+                isChambered = false;
+            }
         }
 
         else if (isMalfunction)
@@ -233,6 +253,11 @@ public class ModularGunSystem : MonoBehaviour
         if (bulletsLeft == 0)
         {
             magazinesLeft--;   
+        }
+        if (!isChambered)
+        {
+            isChambered = true;
+            bulletsLeft--;
         }
         
         bulletsLeft = magazineSize;
