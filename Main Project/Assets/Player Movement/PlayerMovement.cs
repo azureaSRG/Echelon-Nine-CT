@@ -55,8 +55,8 @@ public class PlayerMovement : MonoBehaviour
 
         
         //Changes player speed depending on the key pressed
-        if (Input.GetKey(KeyCode.LeftShift)) {speed = 15f;}
-        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 9f;}
+        if (Input.GetKey(KeyCode.LeftShift)) {speed = 24f;}
+        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 6f;}
         else {speed = 12f;}
 
         //Continues moving player even if in air
