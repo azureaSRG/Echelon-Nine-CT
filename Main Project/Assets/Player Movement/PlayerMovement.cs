@@ -8,7 +8,8 @@ public class PlayerMovement : MonoBehaviour
     public Transform Camera;
 
     public CharacterController controller;
-
+    public GameObject primaryWeaponMass;
+    public GameObject secondaryWeaponMass;
     public float speed = 12f;
     public float gravity = -9.81f;
 
@@ -26,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        primaryWeaponMass = GetComponent<mass>();
+        secondaryWeaponMass = GetComponent<mass>();
     }
 
     // Update is called once per frame
