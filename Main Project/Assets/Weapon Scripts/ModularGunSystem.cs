@@ -39,6 +39,7 @@ public class ModularGunSystem : MonoBehaviour
     //Gun Information
     public float cost, mass, probabilityOfMalfunction;
     public string weaponType;
+    public bool selected;
 
     //Recoil Information
     public float horizontalRecoil;
