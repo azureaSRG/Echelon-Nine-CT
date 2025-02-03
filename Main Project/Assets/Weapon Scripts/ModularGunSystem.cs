@@ -9,7 +9,7 @@ public class ModularGunSystem : MonoBehaviour
     Displayed Information (This can be manipulated in the inspector)
     These variables vary from gun to gun
     */
-
+    
     //Casing Ejection
     public GameObject shellPrefab;
     public Transform shellEjectionPoint;
@@ -38,6 +38,7 @@ public class ModularGunSystem : MonoBehaviour
 
     //Gun Information
     public float cost, mass, probabilityOfMalfunction;
+    public string weaponType;
 
     //Recoil Information
     public float horizontalRecoil;
