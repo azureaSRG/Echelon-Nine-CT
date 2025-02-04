@@ -72,6 +72,9 @@ public class PlayerMovement : MonoBehaviour
         {
             speed = speed / 3;
         }
+        if (Input.GetKey(KeyCode.LeftShift)) {speed = 24f;}
+        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 6f;}
+        else {speed = 12f;}
 
         //Continues moving player even if in air
         Vector3 move = right * x + forward * z;
