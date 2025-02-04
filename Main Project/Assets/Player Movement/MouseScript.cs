@@ -13,7 +13,11 @@ public class MouseScript : MonoBehaviour
     float xRotation = 0f;
     float yRotation = 0f;
 
-
+    private findMouseSpeed(int rate)
+    {
+        speed = mouseSensitivity/rate;
+        return speed;
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -26,11 +30,11 @@ public class MouseScript : MonoBehaviour
     {
         if (Input.GetButton("Fire2"))
         {
-            mouseSpeed = mouseSensitivity/4;
+            mouseSpeed = findMouseSpeed(4);
         }
         else
         {
-            mouseSpeed = mouseSensitivity;
+            mouseSpeed = findMouseSpeed(1);
         }
 
         //Mouse Inputs
