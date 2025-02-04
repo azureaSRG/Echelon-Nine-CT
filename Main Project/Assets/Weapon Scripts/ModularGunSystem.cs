@@ -9,7 +9,7 @@ public class ModularGunSystem : MonoBehaviour
     Displayed Information (This can be manipulated in the inspector)
     These variables vary from gun to gun
     */
-
+    
     //Casing Ejection
     public GameObject shellPrefab;
     public Transform shellEjectionPoint;
@@ -38,6 +38,8 @@ public class ModularGunSystem : MonoBehaviour
 
     //Gun Information
     public float cost, mass, probabilityOfMalfunction;
+    public string weaponType;
+    public bool selected;
 
     //Recoil Information
     public float horizontalRecoil;
@@ -86,11 +88,13 @@ public class ModularGunSystem : MonoBehaviour
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
 
+    //Resets shooting variable
     private void ResetShooting()
     {
         readyToShoot = true;
     }
-    
+
+    //Refills ammo at beginning
     private void RefillAmmo()
     {
         magazinesLeft = magazineReserves;
@@ -99,6 +103,7 @@ public class ModularGunSystem : MonoBehaviour
             magList = new int[] { magazineSize };
         }
     }
+    
     //Receives input
     private void MyInput()
     {
@@ -111,11 +116,12 @@ public class ModularGunSystem : MonoBehaviour
         {
             shooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
-        
+
+        //Changes the variability in spread when continously firing weapon
         if ((!shooting | bulletsLeft <= 0) && firingSpread > 0)
         {
             firingSpread -= (0.03f * Time.deltaTime);
-        }
+        }      
 
         else
         {
@@ -129,7 +135,7 @@ public class ModularGunSystem : MonoBehaviour
             else { fullAuto = true; }
         }
 
-        //Reload or fix malfunctions
+        //Reloads when key r is pressed or fix malfunctions
         if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !reloading && !isMalfunction)
         {
             Reload();
@@ -140,6 +146,7 @@ public class ModularGunSystem : MonoBehaviour
             fixMalfunction();
         }
 
+        //Runs the shoot function when cooldown is down, not reloading & has ammo
         if (readyToShoot && shooting && !reloading && bulletsLeft > 0)
         {
             bulletsShot = bulletsPerTap;
@@ -159,7 +166,7 @@ public class ModularGunSystem : MonoBehaviour
 
     }
 
-    //Shoots raycasts
+    //Shoots raycasts w/ spread
     private void Shoot()
     {
         readyToShoot = false;
@@ -180,6 +187,10 @@ public class ModularGunSystem : MonoBehaviour
             Debug.Log(rayHit.collider.name);
             Debug.Log("Raycast Hit");
 
+            /*
+            Coroutines are functions that can be paused using the yield command.
+            This runs the trails and allows the trails to not instantly go forward and stop when remaining distance is done 
+            */
             StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
            /*
             if (rayHit.collider.CompareTag("Enemy"))
@@ -202,21 +213,21 @@ public class ModularGunSystem : MonoBehaviour
 
         //Executes function with delay
         Invoke("ResetShooting", timeBetweenShots);
-
+        
         if (bulletsShot > 0  && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
-            
             Invoke("Shoot", timeBetweenShots);
             if (bulletsLeft <= 0)
             {
                 isChambered = false;
             }
         }
-
+    
         else if (isMalfunction)
         {
             Debug.Log("Gun Malfunction");
+            //Play audio clip
         }
     }
 
@@ -226,6 +237,7 @@ public class ModularGunSystem : MonoBehaviour
         bulletsLeft = magazineSize;
         readyToShoot = true;
 
+        //Creates trail pool for the bullet trails
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
         trail =>
@@ -263,12 +275,13 @@ public class ModularGunSystem : MonoBehaviour
         bulletsLeft = magazineSize;
         reloading = false;
     }
-    
+
     private void fixMalfunction()
     {
         isMalfunction = false;
     }
 
+    //Checks if gun malfunctions
     private void checkMalfunction(float malChance, float damage)
     {
         float chanceOfMalfunction = 1 - (malChance);

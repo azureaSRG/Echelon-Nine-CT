@@ -8,9 +8,11 @@ public class PlayerMovement : MonoBehaviour
     public Transform Camera;
 
     public CharacterController controller;
-
+    public GameObject primaryWeaponMass;
+    public GameObject secondaryWeaponMass;
     public float speed = 12f;
     public float gravity = -9.81f;
+    public float weaponPen, armorPen;
 
     public Transform groundCheck;
     public Transform airCheck;
@@ -26,6 +28,9 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        primaryWeaponMass = GetComponent<mass>();
+        secondaryWeaponMass = GetComponent<mass>();
+        weaponPen = (primaryWeaponMass + secondaryWeaponMass)/1000
     }
 
     // Update is called once per frame
@@ -55,9 +60,9 @@ public class PlayerMovement : MonoBehaviour
 
         
         //Changes player speed depending on the key pressed
-        if (Input.GetKey(KeyCode.LeftShift)) {speed = 24f;}
-        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 6f;}
-        else {speed = 12f;}
+        if (Input.GetKey(KeyCode.LeftShift)) {speed = 24f - weaponPen;}
+        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 6f - weaponPen;}
+        else {speed = 12f - weaponPen;}
 
         //Continues moving player even if in air
         Vector3 move = right * x + forward * z;
