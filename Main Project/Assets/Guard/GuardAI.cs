@@ -174,7 +174,6 @@ public class GuardAI : MonoBehaviour
         if (bulletsLeft > 0)
         {
             StartCoroutine(PlayTrail(transform.position, rayHit.point, rayHit));
-            Debug.Log(bulletsLeft);
         }
         
 

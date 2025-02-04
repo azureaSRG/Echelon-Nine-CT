@@ -20,11 +20,8 @@ public class SwapWeapon : MonoBehaviour
         int index = 0;
         foreach (Transform weapon in transform)
         {
-            if (weapon.gameObject.selected == false) 
-            {
-                weapon.gameObject.SetActive(index == selectedWeapon);
-                index++;
-            }
+            weapon.gameObject.SetActive(index == selectedWeapon);
+            index++;
         }
     }
 

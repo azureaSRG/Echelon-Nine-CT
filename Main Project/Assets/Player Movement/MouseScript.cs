@@ -5,7 +5,8 @@ using UnityEngine;
 public class MouseScript : MonoBehaviour
 {
 
-    public float mouseSensitivity = 100f;
+    public float mouseSensitivity;
+    private float mouseSpeed;
 
     public Transform playerBody;
 
@@ -23,9 +24,18 @@ public class MouseScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetButton("Fire2"))
+        {
+            mouseSpeed = mouseSensitivity/4;
+        }
+        else
+        {
+            mouseSpeed = mouseSensitivity;
+        }
+
         //Mouse Inputs
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSpeed * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSpeed * Time.deltaTime;
 
         //Rotates along axis specified (Ex: on x skewer)
         xRotation -= mouseY;
@@ -38,6 +48,7 @@ public class MouseScript : MonoBehaviour
         //Applies rotation
         transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
         playerBody.Rotate(Vector3.up * mouseX);
+        
 
     }
 }

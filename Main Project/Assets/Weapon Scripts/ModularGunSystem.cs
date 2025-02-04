@@ -9,7 +9,7 @@ public class ModularGunSystem : MonoBehaviour
     Displayed Information (This can be manipulated in the inspector)
     These variables vary from gun to gun
     */
-    
+
     //Casing Ejection
     public GameObject shellPrefab;
     public Transform shellEjectionPoint;
@@ -46,7 +46,7 @@ public class ModularGunSystem : MonoBehaviour
     public float verticalRecoil;
 
     //Handling Information
-    public float fullReloadTime,partialReloadTime, adsTime, equipSpeed;
+    public float fullReloadTime,partialReloadTime, equipSpeed;
 
     //Accuracy Information
     public float horizontalSpread;
@@ -58,6 +58,7 @@ public class ModularGunSystem : MonoBehaviour
     */
 
     private float firingSpread;
+    public float firingSpreadRate, maxFiringSpread;
 
     private int magazinesLeft, bulletsLeft, bulletsShot, bulletsPerTap;
     private bool shooting, readyToShoot, reloading;
@@ -88,22 +89,124 @@ public class ModularGunSystem : MonoBehaviour
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
 
+    //RELOADING
+
+    //Refills ammo at beginning
+    private void RefillAmmo()
+    {
+        magazinesLeft = magazineReserves;
+        magList = new int[magazineReserves];
+        for (int x = 0; x < magazineReserves; x++)
+        {
+            magList[x] = magazineSize;
+        }
+    }
+
+    //Sets bullets left to the mag size then sets reloading to false
+    private void ReloadFinished()
+    {
+        if (bulletsLeft == 0)
+        {
+            magazinesLeft--;
+        }
+        if (!isChambered)
+        {
+            isChambered = true;
+            bulletsLeft--;
+        }
+
+        bulletsLeft = magazineSize;
+        reloading = false;
+    }
+
+    //Sets reloading and delays reload finsihed function by time
+    private void Reload()
+    {
+        reloading = true;
+        if (bulletsLeft > 0)
+        {
+            Invoke("ReloadFinished", partialReloadTime);
+        }
+        else
+        {
+            Invoke("ReloadFinished", fullReloadTime);
+        }
+
+    }
+
+    //SHOOTING
+
     //Resets shooting variable
     private void ResetShooting()
     {
         readyToShoot = true;
     }
 
-    //Refills ammo at beginning
-    private void RefillAmmo()
+    //Shoots raycasts w/ spread
+    private void Shoot()
     {
-        magazinesLeft = magazineReserves;
-        for (int x = 0; x >= magazineReserves; x++)
+        readyToShoot = false;
+
+        //Spread/Accuracy
+        float spreadX = Random.Range(-horizontalSpread - firingSpread, horizontalSpread + firingSpread);
+        float spreadY = Random.Range(-verticalSpread - firingSpread, verticalSpread + firingSpread);
+
+        Vector3 direction = fpsCam.transform.forward + new Vector3(spreadX, spreadY, 0);
+
+        //Clones Shell Casings
+        if (!isMalfunction) { Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation); }
+        checkMalfunction(probabilityOfMalfunction, 0f);
+
+        //Raycast
+        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef) && (!isMalfunction))
         {
-            magList = new int[] { magazineSize };
+            Debug.Log(rayHit.collider.name);
+            Debug.Log("Raycast Hit");
+
+            /*
+            Coroutines are functions that can be paused using the yield command.
+            This runs the trails and allows the trails to not instantly go forward and stop when remaining distance is done 
+            */
+            StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
+            /*
+             if (rayHit.collider.CompareTag("Enemy"))
+             {
+                 rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
+             }
+             */
+        }
+
+        else
+        {
+            if (!isMalfunction)
+            {
+                StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit()));
+            }
+        }
+
+        bulletsLeft--;
+        bulletsShot--;
+
+        //Executes function with delay
+        Invoke("ResetShooting", timeBetweenShots);
+
+        if (bulletsShot > 0 && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
+        {
+            //Executes the shoot function and has cooldown of firerate (TBS) & prevents extra shtows
+            InvokeRepeating("Shoot", timeBetweenShots, timeBetweenShots);
+            if (bulletsLeft <= 0)
+            {
+                isChambered = false;
+            }
+        }
+
+        else if (isMalfunction)
+        {
+            Debug.Log("Gun Malfunction");
+            //Play audio clip
         }
     }
-    
+
     //Receives input
     private void MyInput()
     {
@@ -118,15 +221,17 @@ public class ModularGunSystem : MonoBehaviour
         }
 
         //Changes the variability in spread when continously firing weapon
-        if ((!shooting | bulletsLeft <= 0) && firingSpread > 0)
+        if ((readyToShoot | bulletsLeft <= 0) && firingSpread > 0)
         {
-            firingSpread -= (0.03f * Time.deltaTime);
+            firingSpread -= (firingSpreadRate * Time.deltaTime);
         }      
 
         else
         {
-            firingSpread += (0.03f * Time.deltaTime);
+            firingSpread += (firingSpreadRate * Time.deltaTime);
         }
+
+        firingSpread = Mathf.Clamp(firingSpread, -maxFiringSpread, maxFiringSpread);
 
         //Changes firemode
         if (Input.GetKeyDown(KeyCode.V) && fullAutoAllowed)
@@ -151,83 +256,6 @@ public class ModularGunSystem : MonoBehaviour
         {
             bulletsShot = bulletsPerTap;
             Shoot();
-        }
-    }
-    
-    //Sets reloading and delays reload finsihed function by time
-    private void Reload()
-    {
-        reloading = true;
-        if (bulletsLeft > 0) {
-            Invoke("ReloadFinished", partialReloadTime); }
-        else {
-            Invoke("ReloadFinished", fullReloadTime); 
-        }
-
-    }
-
-    //Shoots raycasts w/ spread
-    private void Shoot()
-    {
-        readyToShoot = false;
-
-        //Spread/Accuracy
-        float spreadX = Random.Range(-horizontalSpread-firingSpread, horizontalSpread+firingSpread);
-        float spreadY = Random.Range(-verticalSpread-firingSpread, verticalSpread+firingSpread);
-
-        Vector3 direction = fpsCam.transform.forward + new Vector3(spreadX, spreadY, 0);
-
-        //Clones Shell Casings
-        if (!isMalfunction) { Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation); }
-        checkMalfunction(probabilityOfMalfunction, 0f);
-
-        //Raycast
-        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef) && (!isMalfunction))
-        {
-            Debug.Log(rayHit.collider.name);
-            Debug.Log("Raycast Hit");
-
-            /*
-            Coroutines are functions that can be paused using the yield command.
-            This runs the trails and allows the trails to not instantly go forward and stop when remaining distance is done 
-            */
-            StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
-           /*
-            if (rayHit.collider.CompareTag("Enemy"))
-            {
-                rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
-            }
-            */
-        }
-
-        else 
-        { 
-            if (!isMalfunction)
-            {
-                StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit()));
-            }
-        }
-
-        bulletsLeft--;
-        bulletsShot--;
-
-        //Executes function with delay
-        Invoke("ResetShooting", timeBetweenShots);
-        
-        if (bulletsShot > 0  && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
-        {
-            //Executes the shoot function and has cooldown of firerate (TBS)
-            Invoke("Shoot", timeBetweenShots);
-            if (bulletsLeft <= 0)
-            {
-                isChambered = false;
-            }
-        }
-    
-        else if (isMalfunction)
-        {
-            Debug.Log("Gun Malfunction");
-            //Play audio clip
         }
     }
 
@@ -259,22 +287,7 @@ public class ModularGunSystem : MonoBehaviour
     );
     }
 
-    //Sets bullets left to the mag size then sets reloading to false
-    private void ReloadFinished()
-    {
-        if (bulletsLeft == 0)
-        {
-            magazinesLeft--;   
-        }
-        if (!isChambered)
-        {
-            isChambered = true;
-            bulletsLeft--;
-        }
-        
-        bulletsLeft = magazineSize;
-        reloading = false;
-    }
+    //MALFUNCTIONS
 
     private void fixMalfunction()
     {
@@ -374,6 +387,26 @@ public class ModularGunSystem : MonoBehaviour
         instance.emitting = false;
         instance.gameObject.SetActive(false);
         TrailPool.Release(instance);
+    }
+
+    //Camera Shake
+    private IEnumerator Shake(float duration, float magnitude)
+    {
+        Vector3 originalPos = fpsCam.transform.localPosition;
+        float elapsed = 0.0f;
+
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            fpsCam.transform.localPosition = originalPos + new Vector3(x, y, 0);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        fpsCam.transform.localPosition = originalPos;
     }
     // Update is called once per frame
     void Update()
