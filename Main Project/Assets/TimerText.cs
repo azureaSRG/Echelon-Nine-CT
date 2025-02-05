@@ -1,13 +1,13 @@
 using UnityEngine;
 using TMPro;
 
-public class InGameTimer : MonoBehaviour
+public class TimerText : MonoBehaviour
 {
-    public TMP_Text timerText;
+    public TMP_Text timerText;  // Assign this in the Inspector
     private float elapsedTime = 0f;
     private bool isRunning = true;
 
-    private void Update()
+    void Update()
     {
         if (isRunning)
         {
@@ -20,9 +20,9 @@ public class InGameTimer : MonoBehaviour
     {
         int minutes = Mathf.FloorToInt(elapsedTime / 60);
         int seconds = Mathf.FloorToInt(elapsedTime % 60);
-   
+        int milliseconds = Mathf.FloorToInt((elapsedTime * 100) % 100); // 2 decimal places (centiseconds)
 
-        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        timerText.text = string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, milliseconds);
     }
 
     public void StopTimer()
