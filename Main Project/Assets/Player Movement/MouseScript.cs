@@ -13,9 +13,9 @@ public class MouseScript : MonoBehaviour
     float xRotation = 0f;
     float yRotation = 0f;
 
-    private findMouseSpeed(int rate)
+    private float findMouseSpeed(int rate)
     {
-        speed = mouseSensitivity/rate;
+        float speed = mouseSensitivity/rate;
         return speed;
     }
     // Start is called before the first frame update
