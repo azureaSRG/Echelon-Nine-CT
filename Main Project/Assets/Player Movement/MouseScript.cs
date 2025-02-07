@@ -13,7 +13,7 @@ public class MouseScript : MonoBehaviour
     float xRotation = 0f;
     float yRotation = 0f;
 
-    private float findMouseSpeed(int rate)
+    private float changeMouseSpeed(int rate)
     {
         float speed = mouseSensitivity/rate;
         return speed;
@@ -30,11 +30,11 @@ public class MouseScript : MonoBehaviour
     {
         if (Input.GetButton("Fire2"))
         {
-            mouseSpeed = findMouseSpeed(4);
+            mouseSpeed = changeMouseSpeed(4);
         }
         else
         {
-            mouseSpeed = findMouseSpeed(1);
+            mouseSpeed = changeMouseSpeed(1);
         }
 
         //Mouse Inputs
