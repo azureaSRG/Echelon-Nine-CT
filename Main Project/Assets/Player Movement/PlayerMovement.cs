@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float baseSpeed = 12f;
     private float speed;
     public float gravity = -9.81f;
+    public ModularGunSystem mass;
 
     public Transform groundCheck;
     public Transform airCheck;
@@ -72,9 +73,6 @@ public class PlayerMovement : MonoBehaviour
         {
             speed = speed / 3;
         }
-        if (Input.GetKey(KeyCode.LeftShift)) {speed = 24f;}
-        else if (Input.GetKey(KeyCode.LeftControl)) {speed = 6f;}
-        else {speed = 12f;}
 
         //Continues moving player even if in air
         Vector3 move = right * x + forward * z;
