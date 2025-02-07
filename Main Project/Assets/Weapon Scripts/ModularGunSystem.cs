@@ -37,7 +37,8 @@ public class ModularGunSystem : MonoBehaviour
     public float timeBetweenShots, muzzleVelocity, effectiveRange, maxRange;
 
     //Gun Information
-    public float cost, mass, probabilityOfMalfunction;
+    public float cost, probabilityOfMalfunction;
+    public static int mass;
 
     //Recoil Information
     public float horizontalRecoil;
