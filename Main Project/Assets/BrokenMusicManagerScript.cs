@@ -51,6 +51,15 @@ public class MusicManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if(musicTracks.Length > 0)
+        {
+            PlayTrack(0);
+        }
+    }
+
+
     // Play the next track in the array
     public void PlayNextTrack()
     {
