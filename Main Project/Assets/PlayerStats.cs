@@ -9,10 +9,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField]
     protected int maxHealth;
     [SerializeField]
-    protected bool alive;
+    public bool alive;
     public int experience;
     public int playerLevel;
-    [SerializedField]
+    [SerializeField]
     protected int neededXP;
     private int[] xpIntervals = new int[] {1000,2000,3000,4000,5000,10000,15000,20000,30000,40000,49999};
     //10,20,30,40,50,60,70,80,90,96,98
