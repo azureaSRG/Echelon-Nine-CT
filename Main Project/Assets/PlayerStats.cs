@@ -13,8 +13,8 @@ public class PlayerStats : MonoBehaviour
     public int experience;
     public int playerLevel;
     [SerializeField]
-    protected int neededXP;
     private int[] xpIntervals = new int[] {1000,2000,3000,4000,5000,10000,15000,20000,30000,40000,49999};
+    private int[] levelIntervals = new int[] {10,20,30,40,50,60,70,80,90,96,98}
     //10,20,30,40,50,60,70,80,90,96,98
 
     public void gainExperience(int xp)
@@ -26,9 +26,24 @@ public class PlayerStats : MonoBehaviour
     
     public void checkLevelUp()
     {
+        foreach (int element in levelIntervals)
+        {
+            int i;
+            if (element > playerLevel)
+            {
+                int neededXP = levelIntervals[i];
+            }
+            else
+            {
+                i++;   
+            }
+        }
+
         if (experience >= neededXP)
         {
             playerLevel++;
+            experience -= neededXP;
+            checkLevelUp();
         }
     }
     
