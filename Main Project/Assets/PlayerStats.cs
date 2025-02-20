@@ -9,6 +9,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField]
     protected int maxHealth;
     [SerializeField]
+    protected int maxArmorPoints;
+    [SerializeField]
+    public float armorResistance;
+    private int armorPoints;
     public bool alive;
     public int experience;
     public int playerLevel;
@@ -68,11 +72,19 @@ public class PlayerStats : MonoBehaviour
         alive = false;
     }
 
-    public void damagePlayer(int damage)
+    public void damagePlayer(int damage, float armorPeircingValue)
     {
-        int damagedHealth = health -= damage;
-        health = damagedHealth;
-        //Debug.Log(health);
+        if (armorResistance < armorPeircingValue)
+            {
+            int damagedHealth = health - damage;
+            health = damagedHealth;
+            //Debug.Log(health);
+            }
+        else
+        {
+            int damagedHealth = health - (damage/armorResistance);
+            armorPoints--;
+        }
     }
 
 
