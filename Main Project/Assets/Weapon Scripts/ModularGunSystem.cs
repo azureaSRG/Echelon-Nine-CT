@@ -10,6 +10,18 @@ public class ModularGunSystem : MonoBehaviour
     These variables vary from gun to gun
     */
 
+    public int excludedClasses;
+    /*
+     * 0 = None
+     * 1 = Alpha Only
+     * 2 = Bravo Only
+     * 3 = Delta Only
+     * 4 = Alpha & Charlie Only
+     * 5 = Bravo & Charlie Only
+     * 6 = Bravo & Delta Only
+     * 7 = Alpha & Bravo Only
+     */
+
     //Casing Ejection
     public GameObject shellPrefab;
     public Transform shellEjectionPoint;
@@ -159,18 +171,26 @@ public class ModularGunSystem : MonoBehaviour
             firingSpread -= (firingSpreadRate * Time.deltaTime);
         }      
 
-        
-        if ((!shooting | bulletsLeft <= 0) && firingSpread > 0)
-        {
-            firingSpread -= (0.03f * Time.deltaTime);
-        }
-
         else
         {
-            firingSpread += (firingSpreadRate * Time.deltaTime);
+            if (Input.GetButton("Fire2"))
+            {
+                firingSpread += (firingSpreadRate/2 * Time.deltaTime);
+            }
+            else
+            {
+                firingSpread += (firingSpreadRate * Time.deltaTime);
+            }
         }
-
-        firingSpread = Mathf.Clamp(firingSpread, -maxFiringSpread, maxFiringSpread);
+        if (Input.GetButton("Fire2"))
+        {
+            firingSpread = Mathf.Clamp(firingSpread, -maxFiringSpread/2, maxFiringSpread/2);
+        }
+        else
+        {
+            firingSpread = Mathf.Clamp(firingSpread, -maxFiringSpread, maxFiringSpread);
+        }
+        
 
         //Changes firemode
         if (Input.GetKeyDown(KeyCode.V) && fullAutoAllowed)
@@ -219,12 +239,27 @@ public class ModularGunSystem : MonoBehaviour
             Debug.Log("Raycast Hit");
 
             StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
-           /*
-            if (rayHit.collider.CompareTag("Enemy"))
+
+            if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
             {
-                rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
+                if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(headDamage, armorPenetration);
+                }
+                else if (rayHit.collider.CompareTag("Body")) // Check if it's a body shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(bodyDamage, armorPenetration);
+                }
+                else if (rayHit.collider.CompareTag("Legs")) // Check if it's a leg shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(legDamage, armorPenetration);
+                }
+                else if (rayHit.collider.CompareTag("Arms")) // Check if it's an arm shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(armDamage, armorPenetration);
+                }
             }
-            */
+
         }
 
         else 
@@ -296,7 +331,6 @@ public class ModularGunSystem : MonoBehaviour
     {
         float chanceOfMalfunction = 1 - (malChance);
         float random = Random.Range(0f,1f);
-        Debug.Log(random);
         if (random > chanceOfMalfunction)
         {
             Debug.Log("Misfire Malfunction");
@@ -304,31 +338,9 @@ public class ModularGunSystem : MonoBehaviour
         
         chanceOfMalfunction = 1 - (malChance + damage);
         random = Random.Range(0f,1f);
-        Debug.Log(random);
         if (random > chanceOfMalfunction)
         {
-            /*
-            1 Failure to Feed
-            2 Failure to Eject
-            3 Failure to Extract
-            4 Out of Battery
-            5 Misfire
-            */
-            Debug.Log("Weapon Malfunction");
             isMalfunction = true;
-            /*
-            if (damage > value)
-            {
-                Debug.Log("Failure to");
-            }
-            
-            else if (damage > value)
-            {
-                Debug.Log("Failure to");
-            }
-
-            ...
-            */
         }
         else
         {

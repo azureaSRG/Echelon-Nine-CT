@@ -20,10 +20,9 @@ public class GuardAI : MonoBehaviour
     public bool stationary = false;
     public bool isWandering = false;
 
-    public float maxhealth, armor;
-    public int stopTime;
-    private float health;
-    public float damage;
+    public float armorQuality;
+    private int health;
+    public int maxHealth,  guardDamage, armorPoints;
 
     public LayerMask groundMask, playerMask;
 
@@ -63,7 +62,7 @@ public class GuardAI : MonoBehaviour
     public float MissDistance = 100f;
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
-
+    public Transform TrailLeave;
 
     private void Awake()
     {
@@ -119,6 +118,11 @@ public class GuardAI : MonoBehaviour
             Invoke("switchPointDirection", 0f);
         }
 
+        if (playerInSightRange)
+        {
+            Debug.LogWarning("Patrolling function is still being called while player is in sight!");
+        }
+
         // Enemy wanders randomly
         else if (isWandering)
         {
@@ -144,7 +148,13 @@ public class GuardAI : MonoBehaviour
     //CHASING STATE
     private void chasing()
     {
-        agent.SetDestination(player.position);
+
+        NavMeshPath path = new NavMeshPath();
+        if (agent.CalculatePath(player.position, path))
+        {
+            agent.SetPath(path);
+        }
+
     }
 
     //ATTACK STATE
@@ -173,18 +183,16 @@ public class GuardAI : MonoBehaviour
 
         if (bulletsLeft > 0)
         {
-            StartCoroutine(PlayTrail(transform.position, rayHit.point, rayHit));
+            StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
         }
         
 
         if (Physics.Raycast(transform.position, direction, out rayHit, range, playerMask))
         {
-            /*
-             if (rayHit.collider.CompareTag("Enemy"))
-             {
-                 rayHit.collider.GetComponent<Enemy>().TakeDamage(headDamage);
-             }
-             */
+            if (rayHit.collider.CompareTag("Player"))
+                {
+                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage);
+                }
         }
 
         Invoke("resetShooting", timeBetweenShots);
@@ -192,7 +200,6 @@ public class GuardAI : MonoBehaviour
         if (bulletsShot > 0 && bulletsLeft > 0)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
-
             Invoke("shoot", timeBetweenShots);
         }
         else if (bulletsLeft < 0 && !reloading)
@@ -275,6 +282,7 @@ public class GuardAI : MonoBehaviour
     private void Start()
     {
         bulletsLeft = magCapacity;
+        health = maxHealth;
 
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
@@ -299,8 +307,10 @@ public class GuardAI : MonoBehaviour
 
     private void Update()
     {
-        
+
         //Check Sight
+        Debug.Log(agent.hasPath);
+
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerMask);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
 
@@ -317,6 +327,7 @@ public class GuardAI : MonoBehaviour
 
         else if (playerInAttackRange && playerInSightRange)
         {
+            
             if (HasClearShot())
             {
                 attacking();
@@ -324,15 +335,26 @@ public class GuardAI : MonoBehaviour
             else if (!HasClearShot()) 
             {
                 chasing();
-                
+
             }
             
         }
     }
 
-    public void takeDamage()
+    public void takeDamage(int damageTaken, float armorPen)
     {
-        health -= damage;
+        float finalDamageTaken = 0;
+        if (armorQuality >= armorPen)
+        {
+            finalDamageTaken = damageTaken*(1-armorQuality);
+            armorPoints--;
+        }
+        else if (armorQuality < armorPen)
+        {
+            finalDamageTaken = damageTaken;
+        }
+
+        health -= Mathf.RoundToInt(finalDamageTaken);
 
         if (health < 0)
         {

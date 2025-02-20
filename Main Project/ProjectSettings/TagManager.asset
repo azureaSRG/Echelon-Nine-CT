@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Enemy
   - Death Barrier
+  - Head
+  - Body
+  - Legs
+  - Arms
   layers:
   - Default
   - TransparentFX

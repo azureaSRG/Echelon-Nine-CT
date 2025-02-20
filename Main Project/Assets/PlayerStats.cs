@@ -13,8 +13,9 @@ public class PlayerStats : MonoBehaviour
     public int experience;
     public int playerLevel;
     [SerializeField]
+    public int neededXP = 0;
     private int[] xpIntervals = new int[] {1000,2000,3000,4000,5000,10000,15000,20000,30000,40000,49999};
-    private int[] levelIntervals = new int[] {10,20,30,40,50,60,70,80,90,96,98}
+    private int[] levelIntervals = new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 96, 98 };
     //10,20,30,40,50,60,70,80,90,96,98
 
     public void gainExperience(int xp)
@@ -28,7 +29,7 @@ public class PlayerStats : MonoBehaviour
     {
         foreach (int element in levelIntervals)
         {
-            int i;
+            int i = 0;
             if (element > playerLevel)
             {
                 int neededXP = levelIntervals[i];
@@ -71,6 +72,7 @@ public class PlayerStats : MonoBehaviour
     {
         int damagedHealth = health -= damage;
         health = damagedHealth;
+        //Debug.Log(health);
     }
 
 
@@ -78,7 +80,7 @@ public class PlayerStats : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        health = maxHealth;
     }
 
     // Update is called once per frame

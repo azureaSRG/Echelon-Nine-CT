@@ -9,7 +9,7 @@ public class GunAim : MonoBehaviour
     public Vector3 weaponPosition; // set to 0 0 0 in inspector
 
     public float aimSpeed = 0.25f; // time to enter ADS
-    public float _defaultFOV = 60f; // FOV in degrees
+    public float prevDefaultFOV = 60f; // FOV in degrees
     public float zoomRatio = 0.5f; // 1/zoom times
 
     public Camera fpsCam; // player camera
@@ -22,15 +22,15 @@ public class GunAim : MonoBehaviour
         {
             weaponPosition = Vector3.Lerp(weaponPosition, adsPosition.localPosition, aimSpeed * Time.deltaTime);
             activeWeapon.localPosition = weaponPosition;
-            SetFieldOfView(Mathf.Lerp(fpsCam.fieldOfView, zoomRatio * _defaultFOV, aimSpeed * Time.deltaTime));
-            SetFieldOfView(Mathf.Lerp(clipCam.fieldOfView, zoomRatio * _defaultFOV, aimSpeed * Time.deltaTime));
+            SetFieldOfView(Mathf.Lerp(fpsCam.fieldOfView, zoomRatio * prevDefaultFOV, aimSpeed * Time.deltaTime));
+            SetFieldOfView(Mathf.Lerp(clipCam.fieldOfView, zoomRatio * prevDefaultFOV, aimSpeed * Time.deltaTime));
         }
         else
         {
             weaponPosition = Vector3.Lerp(weaponPosition, defaultPosition.localPosition, aimSpeed * Time.deltaTime);
             activeWeapon.localPosition = weaponPosition;
-            SetFieldOfView(Mathf.Lerp(fpsCam.fieldOfView, _defaultFOV, aimSpeed * Time.deltaTime));
-            SetFieldOfView(Mathf.Lerp(clipCam.fieldOfView, _defaultFOV, aimSpeed * Time.deltaTime));
+            SetFieldOfView(Mathf.Lerp(fpsCam.fieldOfView, prevDefaultFOV, aimSpeed * Time.deltaTime));
+            SetFieldOfView(Mathf.Lerp(clipCam.fieldOfView, prevDefaultFOV, aimSpeed * Time.deltaTime));
         }
     }
 
