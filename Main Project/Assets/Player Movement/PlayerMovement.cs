@@ -12,7 +12,10 @@ public class PlayerMovement : MonoBehaviour
     private float speed;
     public float gravity = -9.81f;
     public ModularGunSystem mass;
-
+    
+    private float maxStamina = 100f;
+    private float playerStamina;
+    
     public Transform groundCheck;
     public Transform airCheck;
     public float groundDistance = 0.4f;
@@ -27,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        playerStamina = maxStamina;
     }
 
     // Update is called once per frame
@@ -56,11 +60,17 @@ public class PlayerMovement : MonoBehaviour
 
         
         //Changes player speed depending on the key pressed
-        if (Input.GetKey(KeyCode.LeftShift)) 
+        if (Input.GetKey(KeyCode.LeftShift) && playerStamina < 0) 
         {
             speed = baseSpeed * 1.25f;
+            playerStamina -= 2*Time.deltaTime ;
         }
-        else if (Input.GetKey(KeyCode.LeftControl)) 
+        else if (playerStamina < maxStamina)
+        {
+            playerStamina += Time.deltaTime;
+        }
+        
+        if (Input.GetKey(KeyCode.LeftControl)) 
         {
             speed = baseSpeed * 0.6f;
         }
