@@ -8,11 +8,13 @@ public class PlayerStats : MonoBehaviour
     protected int health;
     [SerializeField]
     protected int maxHealth;
+    
     [SerializeField]
     protected int maxArmorPoints;
-    [SerializeField]
     public float armorResistance;
     private int armorPoints;
+    public bool isPlated;
+    
     public bool alive;
     public int experience;
     public int playerLevel;
@@ -72,19 +74,31 @@ public class PlayerStats : MonoBehaviour
         alive = false;
     }
 
+    public void restoreArmor(int restoration)
+    {
+        if (isPlated && armorPoints < maxArmorPoints)
+        {
+            armorPoints += restoration;
+        }
+        else
+        {
+            Debug.Warning("Armor Not Plated! or Armor Full!");
+        }
+    }
+    
     public void damagePlayer(int damage, float armorPeircingValue)
     {
-        if (armorResistance < armorPeircingValue)
+        if (armorResistance >= armorPeircingValue && armorPoints > 0)
             {
-            int damagedHealth = health - damage;
+            int damagedHealth = health - (damage/armorResistance);
             health = damagedHealth;
-            //Debug.Log(health);
+            armorPoints--;
             }
         else
         {
-            int damagedHealth = health - (damage/armorResistance);
-            armorPoints--;
+            int damagedHealth = health - damage;
         }
+        //Debug.Log(health);
     }
 
 
@@ -93,11 +107,6 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         health = maxHealth;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        armorPoints = maxArmorPoints;
     }
 }
