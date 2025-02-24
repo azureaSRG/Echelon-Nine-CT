@@ -82,7 +82,7 @@ public class PlayerStats : MonoBehaviour
         }
         else
         {
-            Debug.Warning("Armor Not Plated! or Armor Full!");
+            Debug.LogWarning("Armor Not Plated! or Armor Full!");
         }
     }
     
