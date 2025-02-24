@@ -20,7 +20,7 @@ public class GuardAI : MonoBehaviour
     public bool stationary = false;
     public bool isWandering = false;
 
-    public float armorQuality;
+    public float armorQuality, bulletPen;
     private int health;
     public int maxHealth,  guardDamage, armorPoints;
 
@@ -191,7 +191,7 @@ public class GuardAI : MonoBehaviour
         {
             if (rayHit.collider.CompareTag("Player"))
                 {
-                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage);
+                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage, bulletPen);
                 }
         }
 
@@ -309,7 +309,6 @@ public class GuardAI : MonoBehaviour
     {
 
         //Check Sight
-        Debug.Log(agent.hasPath);
 
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerMask);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);

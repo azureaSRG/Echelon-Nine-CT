@@ -14,7 +14,7 @@ public class PlayerStats : MonoBehaviour
     public float armorResistance;
     private int armorPoints;
     public bool isPlated;
-    
+
     public bool alive;
     public int experience;
     public int playerLevel;
@@ -82,7 +82,7 @@ public class PlayerStats : MonoBehaviour
         }
         else
         {
-            Debug.Warning("Armor Not Plated! or Armor Full!");
+            Debug.LogWarning("Armor Not Plated! or Armor Full!");
         }
     }
     
@@ -90,7 +90,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (armorResistance >= armorPeircingValue && armorPoints > 0)
             {
-            int damagedHealth = health - (damage/armorResistance);
+            int damagedHealth = health - Mathf.RoundToInt(damage/armorResistance);
             health = damagedHealth;
             armorPoints--;
             }

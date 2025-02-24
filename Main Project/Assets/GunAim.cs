@@ -3,7 +3,6 @@ using UnityEngine;
 public class GunAim : MonoBehaviour
 {
     public Transform activeWeapon;
-
     public Transform defaultPosition;
     public Transform adsPosition;
     public Vector3 weaponPosition; // set to 0 0 0 in inspector

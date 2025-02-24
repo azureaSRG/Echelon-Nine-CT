@@ -59,20 +59,16 @@ public class PlayerMovement : MonoBehaviour
         forward.Normalize(); // Ensure the vectors have a value of 1. The value is required to be 1, as a decimal or zero, would slow down or stop the player from moving. This allows the player to move in the same direction with different magnitude.
 
         
-        //Changes player speed depending on the key pressed
-        if (Input.GetKey(KeyCode.LeftShift) && playerStamina < 0) 
+        //Changes player speed depending on the key pressed or aiming
+        if (Input.GetKey(KeyCode.LeftShift) && playerStamina > 0 && !Input.GetButton("Fire2")) 
         {
-            speed = baseSpeed * 1.25f;
-            playerStamina -= 2*Time.deltaTime ;
-        }
-        else if (playerStamina < maxStamina)
-        {
-            playerStamina += Time.deltaTime;
+            speed = baseSpeed * 1.5f;
+            playerStamina -= 10*Time.deltaTime ;
         }
         
-        if (Input.GetKey(KeyCode.LeftControl)) 
+        else if (Input.GetKey(KeyCode.LeftControl)) 
         {
-            speed = baseSpeed * 0.6f;
+            speed = baseSpeed * 0.5f;
         }
         else
         {
@@ -82,6 +78,12 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButton("Fire2"))
         {
             speed = speed / 3;
+        }
+        
+        //Adds player stamina if left shift isn't held down
+        if (playerStamina < maxStamina && !Input.GetKey(KeyCode.LeftShift))
+        {
+            playerStamina += 2 * Time.deltaTime;
         }
 
         //Continues moving player even if in air

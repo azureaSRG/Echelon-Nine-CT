@@ -4,7 +4,6 @@ public class SwapWeapon : MonoBehaviour
 {
     public int selectedWeapon = 0;
 
-    // Start is called before the first frame update
     void Start()
     {
         SelectWeapon();
@@ -20,7 +19,10 @@ public class SwapWeapon : MonoBehaviour
         int index = 0;
         foreach (Transform weapon in transform)
         {
-            weapon.gameObject.SetActive(index == selectedWeapon);
+            ModularGunSystem modularGunSystem = weapon.GetComponent<ModularGunSystem>();
+            bool isSelectable = modularGunSystem == null || modularGunSystem.selection;
+
+            weapon.gameObject.SetActive(index == selectedWeapon && isSelectable);
             index++;
         }
     }
@@ -31,20 +33,33 @@ public class SwapWeapon : MonoBehaviour
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0f)
         {
-            selectedWeapon = (selectedWeapon + 1) % transform.childCount;
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
-            selectedWeapon--;
-            if (selectedWeapon < 0)
+            do
             {
-                selectedWeapon = transform.childCount - 1;
-            }
+                selectedWeapon = (selectedWeapon + 1) % transform.childCount;
+            } while (!IsWeaponSelectable(selectedWeapon));
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f || Input.GetKeyDown(KeyCode.C) && !(Input.GetAxis("Mouse ScrollWheel") < 0f && Input.GetKeyDown(KeyCode.C)))
+        {
+            do
+            {
+                selectedWeapon--;
+                if (selectedWeapon < 0)
+                {
+                    selectedWeapon = transform.childCount - 1;
+                }
+            } while (!IsWeaponSelectable(selectedWeapon));
         }
 
         if (previousSelectedWeapon != selectedWeapon)
         {
             SelectWeapon();
         }
+    }
+
+    private bool IsWeaponSelectable(int index)
+    {
+        Transform weapon = transform.GetChild(index);
+        ModularGunSystem modularGunSystem = weapon.GetComponent<ModularGunSystem>();
+        return modularGunSystem == null || modularGunSystem.selection;
     }
 }
