@@ -12,7 +12,7 @@ public class HUDBar : MonoBehaviour
 
   void Start()
   {
-    maxValue = playerStats.maxHealth
+    maxValue = playerStats.maxHealth;
     currentValue = playerStats.health;
   }
 
@@ -22,7 +22,7 @@ public class HUDBar : MonoBehaviour
 
     currentValue = Mathf.Clamp(currentValue, 0, maxValue);
 
-    barImage.fillAmount = currentValue/maxValue;
+    healthBarImage.fillAmount = currentValue/maxValue;
 
     healthBarImage.color = Color.Lerp(emptyColor, fullColor, currentValue/maxValue);
   }
