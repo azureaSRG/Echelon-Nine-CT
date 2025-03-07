@@ -5,19 +5,20 @@ using System.Collections.Generic;
 public class PlayerStats : MonoBehaviour
 {
     [SerializeField]
-    protected int health;
+    public int health;
     [SerializeField]
-    protected int maxHealth;
+    public int maxHealth;
     
     [SerializeField]
     protected int maxArmorPoints;
     public float armorResistance;
+    public float stoppingPower;
     private int armorPoints;
     public bool isPlated;
 
+    public string playerClass;
     public bool alive;
-    public int experience;
-    public int playerLevel;
+    public int experience, money, playerLevel;
     [SerializeField]
     public int neededXP = 0;
     private int[] xpIntervals = new int[] {1000,2000,3000,4000,5000,10000,15000,20000,30000,40000,49999};
@@ -29,6 +30,7 @@ public class PlayerStats : MonoBehaviour
         int gainedXP = xp += experience;
         experience = gainedXP;
         checkLevelUp();
+        Debug.Log(experience);
     }
     
     public void checkLevelUp()
@@ -86,19 +88,32 @@ public class PlayerStats : MonoBehaviour
         }
     }
     
-    public void damagePlayer(int damage, float armorPeircingValue)
+    public void damagePlayer(int damage, float armorPeircingValue, int bulletArmorPower)
     {
-        if (armorResistance >= armorPeircingValue && armorPoints > 0)
+        if (stoppingPower > bulletArmorPower)
+        {
+            Debug.Log("Bullet Stopped");
+        }
+        else if (armorPoints > 0)
+        {
+            if (armorResistance >= armorPeircingValue && armorPoints > 0)
             {
-            int damagedHealth = health - Mathf.RoundToInt(damage/armorResistance);
-            health = damagedHealth;
-            armorPoints--;
+                int damagedHealth = health - Mathf.RoundToInt(damage / armorResistance);
+                health = damagedHealth;
             }
+            else
+            {
+                int damagedHealth = health - damage;
+                health = damagedHealth;
+            }
+        }
         else
         {
             int damagedHealth = health - damage;
+            health = damagedHealth;
         }
-        //Debug.Log(health);
+        //Debug.Log(health);  
+        armorPoints--;
     }
 
 

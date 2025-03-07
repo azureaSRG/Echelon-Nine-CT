@@ -11,6 +11,8 @@ public class GuardAI : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
 
+    public Animator animator;
+
     public Transform startingPatrolPoint;
     public Transform endingPatrolPoint;
 
@@ -21,8 +23,9 @@ public class GuardAI : MonoBehaviour
     public bool isWandering = false;
 
     public float armorQuality, bulletPen;
+    public int guardBulletPower;
     private int health;
-    public int maxHealth,  guardDamage, armorPoints;
+    public int maxHealth,  guardDamage, armorPoints, guardStoppingPower, guardXP;
 
     public LayerMask groundMask, playerMask;
 
@@ -191,7 +194,7 @@ public class GuardAI : MonoBehaviour
         {
             if (rayHit.collider.CompareTag("Player"))
                 {
-                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage, bulletPen);
+                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage, bulletPen, guardBulletPower);
                 }
         }
 
@@ -284,6 +287,8 @@ public class GuardAI : MonoBehaviour
         bulletsLeft = magCapacity;
         health = maxHealth;
 
+        animator = GetComponent<Animator>();
+
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
         trail =>
@@ -334,21 +339,24 @@ public class GuardAI : MonoBehaviour
             else if (!HasClearShot()) 
             {
                 chasing();
-
             }
             
         }
     }
 
-    public void takeDamage(int damageTaken, float armorPen)
+    public void takeDamage(int damageTaken, float armorPen, int bulletPower)
     {
         float finalDamageTaken = 0;
-        if (armorQuality >= armorPen)
+        if (bulletPower <= guardStoppingPower && armorPoints > 0)
         {
             finalDamageTaken = damageTaken*(1-armorQuality);
             armorPoints--;
         }
-        else if (armorQuality < armorPen)
+        else if (armorPoints > 0 && armorQuality > armorPen)
+        {
+            finalDamageTaken = damageTaken * (1 - armorQuality);
+        }
+        else
         {
             finalDamageTaken = damageTaken;
         }
@@ -357,6 +365,7 @@ public class GuardAI : MonoBehaviour
 
         if (health < 0)
         {
+            //player.GetComponent<PlayerStats>().gainExperience(guardXP);
             Destroy(gameObject);
         }
     }

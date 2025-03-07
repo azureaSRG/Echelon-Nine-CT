@@ -37,7 +37,7 @@ public class ModularGunSystem : MonoBehaviour
     private bool isChambered = true;
 
     //Damage Information
-    public int headDamage, bodyDamage, legDamage, armDamage;
+    public int headDamage, bodyDamage, legDamage, armDamage, bulletPower;
     public float armorPenetration;
 
     //Firing Information
@@ -255,19 +255,19 @@ public class ModularGunSystem : MonoBehaviour
             {
                 if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(headDamage, armorPenetration);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(headDamage, armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Body")) // Check if it's a body shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(bodyDamage, armorPenetration);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(bodyDamage, armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Legs")) // Check if it's a leg shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(legDamage, armorPenetration);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(legDamage, armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Arms")) // Check if it's an arm shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(armDamage, armorPenetration);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(armDamage, armorPenetration, bulletPower);
                 }
             }
 

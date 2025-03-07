@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class ShieldHUD : MonoBehavior
+public class ShieldHUD : MonoBehaviour
 {
   public GameObject shieldPrefab;
   public Transform shieldContainer;
@@ -25,7 +25,7 @@ public class ShieldHUD : MonoBehavior
   void DrawShieldHud(int currentArmorPlates, int maxArmorSlots)
   {
     float width = 380f / maxArmorSlots;
-    float x_offset = 10f
+    float x_offset = 10f;
 
     if (Shields.Count < maxArmorSlots)
     {
@@ -46,7 +46,7 @@ public class ShieldHUD : MonoBehavior
 
     for (int i = 0; i < maxArmorSlots; i++)
     {
-      Image shieldImage = Shields[i].GetCompnent<Image>();
+      Image shieldImage = Shields[i].GetComponent<Image>();
       shieldImage.color = (i < currentArmorPlates) ? Color.cyan : Color.gray;
 
       RectTransform rt = Shields[i].GetComponent<RectTransform>();
