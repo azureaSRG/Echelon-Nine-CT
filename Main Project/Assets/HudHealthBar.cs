@@ -18,6 +18,11 @@ public class HUDBar : MonoBehaviour
 
   void Update()
   {
+    UpdateHealthBar()
+  }
+
+  void UpdateHealthBar()
+  {
     currentValue = playerStats.health;
 
     currentValue = Mathf.Clamp(currentValue, 0, maxValue);
