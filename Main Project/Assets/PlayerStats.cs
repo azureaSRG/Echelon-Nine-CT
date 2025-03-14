@@ -20,7 +20,7 @@ public class PlayerStats : MonoBehaviour
     public bool alive;
     public int experience, money, playerLevel;
     [SerializeField]
-    public int neededXP = 0;
+    public int neededXP = 1000;
     private int[] xpIntervals = new int[] {1000,2000,3000,4000,5000,10000,15000,20000,30000,40000,49999};
     private int[] levelIntervals = new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 96, 98 };
     //10,20,30,40,50,60,70,80,90,96,98
@@ -29,30 +29,26 @@ public class PlayerStats : MonoBehaviour
     {
         int gainedXP = xp += experience;
         experience = gainedXP;
-        checkLevelUp();
+        while experience > neededXP:
+            playerLevel++;
+            changeNeededXP();
+        
         Debug.Log(experience);
     }
     
-    public void checkLevelUp()
+    public void changeNeededXP()
     {
+        int i = 0;
         foreach (int element in levelIntervals)
         {
-            int i = 0;
-            if (element > playerLevel)
+            if (element == playerLevel)
             {
-                int neededXP = levelIntervals[i];
+                int neededXP += xpIntervals[i];
             }
             else
             {
                 i++;   
             }
-        }
-
-        if (experience >= neededXP)
-        {
-            playerLevel++;
-            experience -= neededXP;
-            checkLevelUp();
         }
     }
     
