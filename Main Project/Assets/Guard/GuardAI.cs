@@ -6,12 +6,12 @@ using UnityEngine.Pool;
 
 public class GuardAI : MonoBehaviour
 {
-
     //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
-    public NavMeshAgent agent;
+	public bool playerFound;
+	public NavMeshAgent agent;
     public Transform player;
-
-    public Animator animator;
+	
+    Animator animator;
 
     public Transform startingPatrolPoint;
     public Transform endingPatrolPoint;
@@ -40,7 +40,7 @@ public class GuardAI : MonoBehaviour
 
     //States
     public float sightRange, attackRange;
-    public bool playerInSightRange, playerInAttackRange;
+    public bool playerInSightRange, playerInAttackRange, playerInLineOfSight;
 
     //Enemy Shooting
     public float horizontalSpread, verticalSpread;
@@ -82,7 +82,7 @@ public class GuardAI : MonoBehaviour
         if (!pointDirection)
         {
             agent.SetDestination(vectorEnd);
-            if (Mathf.Abs((transform.position.x - endingPatrolPoint.position.x) + (transform.position.z - endingPatrolPoint.position.z)) < 1)
+            if (Vector3.Distance(transform.position, endingPatrolPoint.position) < 1f)
             {
                 pointDirection = true;
             }
@@ -90,7 +90,7 @@ public class GuardAI : MonoBehaviour
         else
         {
             agent.SetDestination(vectorStart);
-            if (Mathf.Abs((transform.position.x - startingPatrolPoint.position.x) + (transform.position.z - startingPatrolPoint.position.z)) < 1)
+            if (Vector3.Distance(transform.position, endingPatrolPoint.position) < 1f)
             {
                 pointDirection = false;
             }
@@ -137,6 +137,8 @@ public class GuardAI : MonoBehaviour
             if (walkPointSet)
             {
                 agent.SetDestination(walkPoint);
+				
+				if (animator != null) {animator.SetBool("isWalking",true);}
             }
 
             Vector3 distanceToWalkPoint = transform.position - walkPoint;
@@ -156,6 +158,7 @@ public class GuardAI : MonoBehaviour
         if (agent.CalculatePath(player.position, path))
         {
             agent.SetPath(path);
+			
         }
 
     }
@@ -165,7 +168,9 @@ public class GuardAI : MonoBehaviour
     {
         agent.SetDestination(transform.position);
         transform.LookAt(player);
-
+		
+		if (animator != null) {animator.SetBool("isWalking",false);}
+		
         if (!alreadyShot)
         {
             shoot();
@@ -182,7 +187,7 @@ public class GuardAI : MonoBehaviour
         float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
         float spreadY = Random.Range(-verticalSpread, verticalSpread);
 
-        Vector3 direction = transform.forward + new Vector3(spreadX, spreadY, 0);
+        Vector3 direction = (player.position - transform.position).normalized + new Vector3(spreadX, spreadY, 0);
 
         if (bulletsLeft > 0)
         {
@@ -286,8 +291,18 @@ public class GuardAI : MonoBehaviour
     {
         bulletsLeft = magCapacity;
         health = maxHealth;
-
-        animator = GetComponent<Animator>();
+		
+		if (animator == null)
+		{
+			Debug.LogError("Animator Not Found on " + gameObject.name);
+		}
+        else
+		{
+			animator = GetComponent<Animator>();
+			Debug.Log(animator);
+		}
+		
+		
 
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
@@ -312,24 +327,25 @@ public class GuardAI : MonoBehaviour
 
     private void Update()
     {
-
+		
         //Check Sight
 
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerMask);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
-
+		playerInLineOfSight = CheckLineOfSight();
+		
         //Controls Enemy Behavior
         if (!playerInSightRange && !playerInAttackRange)
         {
             patrolling();
         }
 
-        else if (!playerInAttackRange && playerInSightRange)
+        else if (!playerInAttackRange && playerInSightRange && playerInLineOfSight)
         {
             chasing();
         }
 
-        else if (playerInAttackRange && playerInSightRange)
+        else if (playerInAttackRange && playerInSightRange && playerInLineOfSight)
         {
             
             if (HasClearShot())
@@ -342,6 +358,7 @@ public class GuardAI : MonoBehaviour
             }
             
         }
+		
     }
 
     public void takeDamage(int damageTaken, float armorPen, int bulletPower)
@@ -365,7 +382,7 @@ public class GuardAI : MonoBehaviour
 
         if (health < 0)
         {
-            //player.GetComponent<PlayerStats>().gainExperience(guardXP);
+            player.GetComponent<PlayerStats>().gainExperience(guardXP);
             Destroy(gameObject);
         }
     }
@@ -380,4 +397,21 @@ public class GuardAI : MonoBehaviour
         }
         return false;
     }
+	
+	private bool CheckLineOfSight()
+	{
+		if (!Physics.CheckSphere(transform.position, sightRange, playerMask)) return false;
+		
+		RaycastHit hit;
+		if (Physics.Raycast(transform.position, (player.position - transform.position).normalized, out hit, sightRange))
+		{
+			return hit.collider.CompareTag("Player");
+		}
+		return false;
+	}
+	
+	public void changePhase()
+	{
+		
+	}
 }

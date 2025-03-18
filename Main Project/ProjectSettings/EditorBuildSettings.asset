@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: caf03ed0dbfe4ac40a312d80575cca4e
+  - enabled: 1
+    path: Assets/Scenes/Steel Veil.unity
+    guid: 168f22cc538a65a4e9854e6d5756dc08
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

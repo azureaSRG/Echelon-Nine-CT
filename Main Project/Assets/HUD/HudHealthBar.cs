@@ -18,7 +18,7 @@ public class HUDBar : MonoBehaviour
 
   void Update()
   {
-    UpdateHealthBar()
+    UpdateHealthBar();
   }
 
   void UpdateHealthBar()

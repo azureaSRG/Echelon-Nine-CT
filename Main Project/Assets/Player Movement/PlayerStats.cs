@@ -29,10 +29,12 @@ public class PlayerStats : MonoBehaviour
     {
         int gainedXP = xp += experience;
         experience = gainedXP;
-        while experience > neededXP:
+        while (experience > neededXP)
+		{
             playerLevel++;
             changeNeededXP();
-        
+        }
+		
         Debug.Log(experience);
     }
     
@@ -43,7 +45,7 @@ public class PlayerStats : MonoBehaviour
         {
             if (element == playerLevel)
             {
-                int neededXP += xpIntervals[i];
+                neededXP = neededXP + xpIntervals[i];
             }
             else
             {
