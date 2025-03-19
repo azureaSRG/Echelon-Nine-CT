@@ -74,6 +74,7 @@ public class PlayerStats : MonoBehaviour
         alive = false;
     }
 
+    //Might Change due to the way armor works
     public void restoreArmor(int restoration)
     {
         if (isPlated && armorPoints < maxArmorPoints)
@@ -112,6 +113,12 @@ public class PlayerStats : MonoBehaviour
         }
         //Debug.Log(health);  
         armorPoints--;
+    }
+
+    public void addPlayerMoney(int amount)
+    {
+    	int newAmount = money + amount;
+     	money = newAmount;
     }
 
 
