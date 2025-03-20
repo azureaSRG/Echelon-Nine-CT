@@ -1,5 +1,6 @@
-public enum GunType
+public enum PrimaryWeapon
 {
-    Glock,
-    M4A1
+    M4A1,
+    M16A1,
+    FAMAS
 }
