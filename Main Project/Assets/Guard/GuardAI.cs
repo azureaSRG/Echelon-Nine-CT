@@ -76,15 +76,16 @@ public class GuardAI : MonoBehaviour
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
     public Transform TrailLeave;
-
-	public float prevDetectionRadius;
-	public float detectionRadius;
-	public float prevDetectionAngle;
-	public float detectionAngle;
-	public AlertStage alertStage;
-	
-	[Range (0,200)] public float alertLevel = 0;
-	[Range(0,600)] public int searchTimer = 300;
+    public float prevDetectionRadius;
+    public float detectionRadius;
+    public float prevDetectionAngle;
+    public float detectionAngle;
+    public float innerDetectionRadius;
+    public float innerDetectionAngle;
+    public AlertStage alertStage;
+    
+    [Range (0,200)] public float alertLevel = 0;
+    [Range(0,600)] public int searchTimer = 300;
 	
     private void Awake()
     {
@@ -346,28 +347,41 @@ public class GuardAI : MonoBehaviour
     {
 		
         //Check Sight
-		Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
+	Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
+ 	Collider[] targetsInInnerFOV = Physics.OverlapSphere(transform.position, innerDetectionRadius);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
-		playerInLineOfSight = CheckLineOfSight();
+	playerInLineOfSight = CheckLineOfSight();
 		
-		bool playerDetected = false;
-		foreach (Collider c in targetsInFOV)
+	bool playerDetected = false;
+	foreach (Collider c in targetsInFOV)
+	{
+		if (c.CompareTag("Player"))
 		{
-			if (c.CompareTag("Player"))
+			float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
+			if (Mathf.Abs(signedAngle) < detectionAngle / 2)
 			{
-				float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
-				if (Mathf.Abs(signedAngle) < detectionAngle / 2)
-				{
-					playerDetected = true;
-				}
-				break;
+				playerDetected = true;
 			}
+			break;
 		}
+	}
+ 	foreach (Collider c in targetsInInnerFOV)
+  	{
+   		if (c.CompareTag("Player")
+     		{
+       			float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position)
+	  		if (Mathf.Abs(signedAngle) < innerDetectionAngle / 2)
+     			{
+				playerDetected = true;
+			}
+   			break;
+       		}
+   	}
 		
-		_UpdateAlertState(playerDetected);
+	_UpdateAlertState(playerDetected);
 		
         //Controls Enemy Behavior
-		if (!playerDetected && !playerInAttackRange)
+	if (!playerDetected && !playerInAttackRange)
         {
             patrolling();
         }
