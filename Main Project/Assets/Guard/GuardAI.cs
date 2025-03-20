@@ -3,11 +3,21 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Pool;
+using UnityEditor;
+
+public enum AlertStage
+{
+	Stealth,
+	Suspicion,
+	Search,
+	Alert
+}
 
 public class GuardAI : MonoBehaviour
 {
     //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
-	public bool playerFound;
+	public static bool playerFound;
+	public static int phase = 0;
 	public NavMeshAgent agent;
     public Transform player;
 	
@@ -67,6 +77,15 @@ public class GuardAI : MonoBehaviour
     private ObjectPool<TrailRenderer> TrailPool;
     public Transform TrailLeave;
 
+	public float prevDetectionRadius;
+	public float detectionRadius;
+	public float prevDetectionAngle;
+	public float detectionAngle;
+	public AlertStage alertStage;
+	
+	[Range (0,200)] public float alertLevel = 0;
+	[Range(0,600)] public int searchTimer = 300;
+	
     private void Awake()
     {
         player = GameObject.Find("Player").transform;
@@ -74,6 +93,9 @@ public class GuardAI : MonoBehaviour
         vectorStart = new Vector3(startingPatrolPoint.position.x, startingPatrolPoint.position.y, startingPatrolPoint.position.z);
         vectorEnd = new Vector3(endingPatrolPoint.position.x, endingPatrolPoint.position.y, endingPatrolPoint.position.z);
         walkPointSet = true;
+		
+		prevDetectionAngle = detectionAngle;
+		alertStage = AlertStage.Stealth;
     }
 
     //PATROLLING STATE
@@ -119,11 +141,6 @@ public class GuardAI : MonoBehaviour
         if (!isWandering)
         {
             Invoke("switchPointDirection", 0f);
-        }
-
-        if (playerInSightRange)
-        {
-            Debug.LogWarning("Patrolling function is still being called while player is in sight!");
         }
 
         // Enemy wanders randomly
@@ -329,23 +346,38 @@ public class GuardAI : MonoBehaviour
     {
 		
         //Check Sight
-
-        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerMask);
+		Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
 		playerInLineOfSight = CheckLineOfSight();
 		
+		bool playerDetected = false;
+		foreach (Collider c in targetsInFOV)
+		{
+			if (c.CompareTag("Player"))
+			{
+				float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
+				if (Mathf.Abs(signedAngle) < detectionAngle / 2)
+				{
+					playerDetected = true;
+				}
+				break;
+			}
+		}
+		
+		_UpdateAlertState(playerDetected);
+		
         //Controls Enemy Behavior
-        if (!playerInSightRange && !playerInAttackRange)
+		if (!playerDetected && !playerInAttackRange)
         {
             patrolling();
         }
 
-        else if (!playerInAttackRange && playerInSightRange && playerInLineOfSight)
+        else if (!playerInAttackRange && playerDetected && playerInLineOfSight)
         {
             chasing();
         }
 
-        else if (playerInAttackRange && playerInSightRange && playerInLineOfSight)
+        else if (playerInAttackRange && playerDetected && playerInLineOfSight)
         {
             
             if (HasClearShot())
@@ -379,7 +411,10 @@ public class GuardAI : MonoBehaviour
         }
 
         health -= Mathf.RoundToInt(finalDamageTaken);
-
+		
+		//Testing
+		Debug.Log(damageTaken);
+		
         if (health < 0)
         {
             player.GetComponent<PlayerStats>().gainExperience(guardXP);
@@ -400,18 +435,95 @@ public class GuardAI : MonoBehaviour
 	
 	private bool CheckLineOfSight()
 	{
-		if (!Physics.CheckSphere(transform.position, sightRange, playerMask)) return false;
+		if (!Physics.CheckSphere(transform.position, detectionRadius, playerMask)) return false;
 		
 		RaycastHit hit;
-		if (Physics.Raycast(transform.position, (player.position - transform.position).normalized, out hit, sightRange))
+		if (Physics.Raycast(transform.position, (player.position - transform.position).normalized, out hit, detectionRadius))
 		{
 			return hit.collider.CompareTag("Player");
 		}
 		return false;
 	}
 	
-	public void changePhase()
+
+	
+	//Debugging
+	private void OnDrawGizmos()
 	{
+		Handles.color = new Color(0,1,0,0.3f);
+		Vector3 arcStartDirection = Quaternion.AngleAxis(-detectionAngle / 2f, transform.up) * transform.forward;
+		Handles.DrawSolidArc(transform.position, transform.up, arcStartDirection, detectionAngle, detectionRadius);
+	}
+	
+	private void _UpdateAlertState(bool playerDetected)
+	{
+		Debug.Log(alertStage);
 		
+		switch (alertStage)
+		{
+			case AlertStage.Stealth:
+				if (playerDetected && CheckLineOfSight())
+				{
+					alertLevel++;
+					alertStage = AlertStage.Suspicion;
+					if (alertLevel >= 100)
+					{
+						alertStage = AlertStage.Search;
+						phase = 1;
+					}
+				}
+				
+				break;
+			
+			case AlertStage.Suspicion:
+				if (playerDetected && CheckLineOfSight())
+				{
+					alertLevel++;
+					detectionAngle = prevDetectionAngle + 20;
+					detectionRadius = prevDetectionRadius + 10;
+					
+					if (alertLevel >= 100)
+					{
+						alertStage = AlertStage.Search;
+						phase = 2;
+					}
+				}
+				
+				
+				break;
+			
+			case AlertStage.Search:
+				if (playerDetected && CheckLineOfSight())
+				{
+					alertLevel++;
+					searchTimer++;
+					if (alertLevel >= 200)
+					{
+						alertStage = AlertStage.Alert;
+						phase = 3;
+					}
+					
+					if (alertLevel <= 0 && searchTimer <= 0)
+					{
+						alertStage = AlertStage.Suspicion;
+						phase = 2;
+						searchTimer = 300;
+						alertLevel = 20;
+					}
+					
+				}
+				else
+				{
+					searchTimer--;
+					alertLevel--;
+				}
+				break;
+			
+			case AlertStage.Alert:
+			//Cheap Workaround TBH
+				detectionAngle = 360;
+				detectionRadius = 1000;
+				break;
+		}
 	}
 }

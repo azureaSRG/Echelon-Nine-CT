@@ -228,7 +228,22 @@ public class ModularGunSystem : MonoBehaviour
             Shoot();
         }
     }
-
+	
+	private float findDistanceMultiplier(float distance)
+	{	
+		if ((distance*2) > effectiveRange)
+		{
+			float distancePenalty = (maxRange-distance)/maxRange;
+			Debug.Log(distancePenalty);
+			return distancePenalty;
+		}
+		else
+		{
+			//No Distance Penalty (Distance is within Effective Range)
+			return 1;
+		}
+	}
+	
     //Shoots raycasts
     private void Shoot()
     {
@@ -247,27 +262,33 @@ public class ModularGunSystem : MonoBehaviour
         //GetComponent<GunKick>().Recoil();
 
         //Raycast
-        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, effectiveRange, enemyDef) && (!isMalfunction))
+        if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, maxRange, enemyDef) && (!isMalfunction))
         {
             StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
-
+			
+			float distance = Vector3.Distance(rayHit.collider.transform.position, attackPoint.transform.position);
+			
+			Debug.Log(distance);
+			
+			float distanceMultiplier = findDistanceMultiplier(distance);
+			
             if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
             {
                 if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(headDamage, armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(headDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Body")) // Check if it's a body shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(bodyDamage, armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(bodyDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Legs")) // Check if it's a leg shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(legDamage, armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(legDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Arms")) // Check if it's an arm shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(armDamage, armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(armDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
             }
 
