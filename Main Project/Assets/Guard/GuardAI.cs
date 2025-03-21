@@ -16,7 +16,6 @@ public enum AlertStage
 public class GuardAI : MonoBehaviour
 {
     //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
-	public static bool playerFound;
 	public static int phase = 0;
 	public NavMeshAgent agent;
     public Transform player;
@@ -76,13 +75,12 @@ public class GuardAI : MonoBehaviour
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
     public Transform TrailLeave;
-    public float prevDetectionRadius;
+    float prevDetectionRadius,prevDetectionAngle;
     public float detectionRadius;
-    public float prevDetectionAngle;
     public float detectionAngle;
     public float innerDetectionRadius;
     public float innerDetectionAngle;
-    public AlertStage alertStage;
+    public AlertStage alertStage;	
     
     [Range (0,200)] public float alertLevel = 0;
     [Range(0,600)] public int searchTimer = 300;
@@ -349,7 +347,7 @@ public class GuardAI : MonoBehaviour
         //Check Sight
 	Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
  	Collider[] targetsInInnerFOV = Physics.OverlapSphere(transform.position, innerDetectionRadius);
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
+    playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
 	playerInLineOfSight = CheckLineOfSight();
 		
 	bool playerDetected = false;
@@ -365,17 +363,18 @@ public class GuardAI : MonoBehaviour
 			break;
 		}
 	}
- 	foreach (Collider c in targetsInInnerFOV)
+ 	
+	foreach (Collider c in targetsInInnerFOV)
   	{
-   		if (c.CompareTag("Player")
-     		{
-       			float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position)
-	  		if (Mathf.Abs(signedAngle) < innerDetectionAngle / 2)
-     			{
+   		if (c.CompareTag("Player"))
+     	{
+       		float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
+			if (Mathf.Abs(signedAngle) < innerDetectionAngle / 2)
+			{
 				playerDetected = true;
 			}
-   			break;
-       		}
+   		break;
+       	}
    	}
 		
 	_UpdateAlertState(playerDetected);
@@ -449,10 +448,14 @@ public class GuardAI : MonoBehaviour
 	
 	private bool CheckLineOfSight()
 	{
-		if (!Physics.CheckSphere(transform.position, detectionRadius, playerMask)) return false;
+		if (!Physics.CheckSphere(transform.position, detectionRadius, playerMask) && !Physics.CheckSphere(transform.position, innerDetectionRadius, playerMask)) return false;
 		
 		RaycastHit hit;
 		if (Physics.Raycast(transform.position, (player.position - transform.position).normalized, out hit, detectionRadius))
+		{
+			return hit.collider.CompareTag("Player");
+		}
+		else if (Physics.Raycast(transform.position, (player.position - transform.position).normalized, out hit, innerDetectionRadius))
 		{
 			return hit.collider.CompareTag("Player");
 		}
@@ -467,6 +470,15 @@ public class GuardAI : MonoBehaviour
 		Handles.color = new Color(0,1,0,0.3f);
 		Vector3 arcStartDirection = Quaternion.AngleAxis(-detectionAngle / 2f, transform.up) * transform.forward;
 		Handles.DrawSolidArc(transform.position, transform.up, arcStartDirection, detectionAngle, detectionRadius);
+		
+		Vector3 innerArcStartDirection = Quaternion.AngleAxis(-innerDetectionAngle / 2f, transform.up) * transform.forward;
+		Handles.DrawSolidArc(transform.position, transform.up, innerArcStartDirection, innerDetectionAngle, innerDetectionRadius);
+	}
+	
+	//Accessed by Player Movement for noise levels
+	public void changeAlertLevel(int changeAmount)
+	{
+		alertLevel = alertLevel + changeAmount;
 	}
 	
 	private void _UpdateAlertState(bool playerDetected)

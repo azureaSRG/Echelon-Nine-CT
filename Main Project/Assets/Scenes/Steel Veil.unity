@@ -13487,16 +13487,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: detectionAngle
-      value: 60
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: detectionRadius
-      value: 35
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: endingPatrolPoint
       value: 
       objectReference: {fileID: 193059733}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: innerDetectionAngle
+      value: 230
+      objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: playerInAttackRange
       value: 0
@@ -13505,6 +13509,10 @@ PrefabInstance:
       propertyPath: startingPatrolPoint
       value: 
       objectReference: {fileID: 193059733}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: innerDetectionRadius
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8903360571655111664, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: m_Name
       value: Out Guard
@@ -21987,6 +21995,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: detectionAngle
+      value: 3.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: detectionRadius
+      value: 2.82
+      objectReference: {fileID: 0}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardBulletPower
       value: 1
       objectReference: {fileID: 0}
@@ -21995,9 +22011,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 348413448}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: prevDetectionAngle
+      value: 2.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: innerDetectionAngle
+      value: 35.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: startingPatrolPoint
       value: 
       objectReference: {fileID: 153632934}
+    - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
+      propertyPath: innerDetectionRadius
+      value: 20.12
+      objectReference: {fileID: 0}
     - target: {fileID: 8903360571655111664, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: m_Name
       value: Main Room Guard
@@ -39363,13 +39391,17 @@ MonoBehaviour:
   controller: {fileID: 1764232571824587484}
   baseSpeed: 12
   gravity: -9.81
-  mass: {fileID: 0}
   groundCheck: {fileID: 1443160565849834046}
   airCheck: {fileID: 229931211673841855}
   groundDistance: 0.4
   groundMask:
     serializedVersion: 2
     m_Bits: 8
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 64
+  noiseLevel: 40
+  action: 0
 --- !u!4 &229931211673841855
 Transform:
   m_ObjectHideFlags: 0
@@ -40846,7 +40878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30e210b3e4ddcb7429ae74637650b229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStats: {fileID: 0}
+  playerStats: {fileID: 7996967746708046205}
 --- !u!114 &7996967746708046205
 MonoBehaviour:
   m_ObjectHideFlags: 0

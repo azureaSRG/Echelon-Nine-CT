@@ -432,12 +432,6 @@ public class ModularGunSystem : MonoBehaviour
 
         fpsCam.transform.localPosition = originalPos;
     }
-
-    private void _switchFireMode(previousFiremode)
-    {
-    
-    }
-
    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     // Start is called before the first frame update
