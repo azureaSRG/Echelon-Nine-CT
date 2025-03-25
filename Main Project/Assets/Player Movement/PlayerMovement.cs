@@ -55,10 +55,7 @@ public class PlayerMovement : MonoBehaviour
     {
 		
 		//Avoid repeated use if redudant
-		if (GuardAI.phase != 4)
-		{
 		_noiseManager(getInput());
-		}
 		
         //Sphere under player checks if the player is in contact with the ground
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
@@ -125,7 +122,7 @@ public class PlayerMovement : MonoBehaviour
 	
 	private string getInput()
 	{
-		if (Input.GetAxis("Horizontal") > 0 || Input.GetAxis("Vertical") > 0)
+		if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
 		{
 			if (Input.GetKey(KeyCode.LeftShift) && playerStamina > 0 && !Input.GetButton("Fire2")) 
 			{
@@ -205,7 +202,7 @@ public class PlayerMovement : MonoBehaviour
 				noiseLevel = 60 + Random.Range(-9f,9f);
 				if (checkGuardsInNoiseRadius(noiseLevel))
 				{
-					increaseAlertLevelOnGuards(1,noiseLevel);
+					increaseAlertLevelOnGuards(10f,noiseLevel);
 				}
 				
 				if (playerAction == "Slow Walking")
@@ -228,7 +225,7 @@ public class PlayerMovement : MonoBehaviour
 				noiseLevel = 75 + Random.Range(-12f,12f);
 				if (checkGuardsInNoiseRadius(noiseLevel))
 				{
-					increaseAlertLevelOnGuards(1,noiseLevel);
+					increaseAlertLevelOnGuards(20f,noiseLevel);
 				}
 				
 				if (playerAction == "Slow Walking")
@@ -248,15 +245,14 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 	
-	private void increaseAlertLevelOnGuards(int alertIncrease, float noiseAmount)
+	private void increaseAlertLevelOnGuards(float increasePerSecond, float noiseAmount)
 	{
 		Collider[] guardsInRadius = Physics.OverlapSphere(transform.position, noiseAmount);
 		foreach (Collider c in guardsInRadius)
 		{
-			if (c.CompareTag("Guard"))
+			if (c.CompareTag("Head"))
 			{
-				c.GetComponent<GuardAI>().changeAlertLevel(alertIncrease);
-				Debug.Log(c);
+				c.GetComponentInParent<GuardAI>().changeAlertLevel(increasePerSecond*Time.deltaTime);
 			}
 		}
 	}
@@ -266,9 +262,9 @@ public class PlayerMovement : MonoBehaviour
 		Collider[] checkRadius = Physics.OverlapSphere(transform.position, noiseAmount);
 		foreach (Collider c in checkRadius)
 		{
-			if (c.CompareTag("Guard"))
+			if (c.CompareTag("Head"))
 			{
-				return c.CompareTag("Guard");
+				return c.CompareTag("Head");
 			}
 		}
 		return false;

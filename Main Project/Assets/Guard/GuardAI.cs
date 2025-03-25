@@ -15,12 +15,12 @@ public enum AlertStage
 
 public class GuardAI : MonoBehaviour
 {
+	private GuardAnimationHandler animHandler;
+	
     //Potential MultiPoint Patrol System Using int pointDirection instead of bool pointDirection
 	public static int phase = 0;
 	public NavMeshAgent agent;
     public Transform player;
-	
-    Animator animator;
 
     public Transform startingPatrolPoint;
     public Transform endingPatrolPoint;
@@ -41,15 +41,15 @@ public class GuardAI : MonoBehaviour
     //Patrolling
     public Vector3 walkPoint;
     bool walkPointSet;
-    float walkPointRange = 1f;
+    float walkPointRange = 10f;
 
     //Attacking
     public float timeBetweenShots;
     bool alreadyShot;
 
     //States
-    public float sightRange, attackRange;
-    public bool playerInSightRange, playerInAttackRange, playerInLineOfSight;
+    public float attackRange;
+    public bool playerInAttackRange, playerInLineOfSight;
 
     //Enemy Shooting
     public float horizontalSpread, verticalSpread;
@@ -89,6 +89,7 @@ public class GuardAI : MonoBehaviour
     {
         player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
+		
         vectorStart = new Vector3(startingPatrolPoint.position.x, startingPatrolPoint.position.y, startingPatrolPoint.position.z);
         vectorEnd = new Vector3(endingPatrolPoint.position.x, endingPatrolPoint.position.y, endingPatrolPoint.position.z);
         walkPointSet = true;
@@ -99,39 +100,47 @@ public class GuardAI : MonoBehaviour
 
     //PATROLLING STATE
     private void switchPointDirection()
-    {
-        if (!pointDirection)
-        {
-            agent.SetDestination(vectorEnd);
-            if (Vector3.Distance(transform.position, endingPatrolPoint.position) < 1f)
-            {
-                pointDirection = true;
-            }
-        }
-        else
-        {
-            agent.SetDestination(vectorStart);
-            if (Vector3.Distance(transform.position, endingPatrolPoint.position) < 1f)
-            {
-                pointDirection = false;
-            }
-        }
-    }
+	{
+		if (transform.position.x == startingPatrolPoint.position.x)
+		{
+			pointDirection = true;
+		}
+		else if (transform.position.x == endingPatrolPoint.position.x)
+		{
+			pointDirection = false;
+		}
+		
+		if (pointDirection)
+		{
+			agent.SetDestination(endingPatrolPoint.position);
+		}
+		else
+		{
+			agent.SetDestination(startingPatrolPoint.position);
+		}
+	}
 
     //Enemy searchs for random point to walk
     private void searchWalkPoint()
+{
+    float randomZ = Random.Range(-walkPointRange, walkPointRange);
+    float randomX = Random.Range(-walkPointRange, walkPointRange);
+
+    walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+    
+    // Ensure NavMeshAgent can reach the point
+    NavMeshHit hit;
+    if (NavMesh.SamplePosition(walkPoint, out hit, 2.0f, NavMesh.AllAreas))
     {
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
-        float randomX = Random.Range(-walkPointRange, walkPointRange);
-
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
-
-        //Checks if in bounds
-        if (Physics.Raycast(walkPoint, -transform.up, 2f, groundMask))
-        {
-            walkPointSet = true;
-        }
+        walkPoint = hit.position; // Adjust point to nearest valid NavMesh location
+        walkPointSet = true;
+        Debug.Log("Valid Walk Point Found: " + walkPoint);
     }
+    else
+    {
+        Debug.Log("Invalid Walk Point: " + walkPoint);
+    }
+}
 
     private void patrolling()
     {
@@ -153,8 +162,6 @@ public class GuardAI : MonoBehaviour
             if (walkPointSet)
             {
                 agent.SetDestination(walkPoint);
-				
-				if (animator != null) {animator.SetBool("isWalking",true);}
             }
 
             Vector3 distanceToWalkPoint = transform.position - walkPoint;
@@ -174,7 +181,6 @@ public class GuardAI : MonoBehaviour
         if (agent.CalculatePath(player.position, path))
         {
             agent.SetPath(path);
-			
         }
 
     }
@@ -184,8 +190,6 @@ public class GuardAI : MonoBehaviour
     {
         agent.SetDestination(transform.position);
         transform.LookAt(player);
-		
-		if (animator != null) {animator.SetBool("isWalking",false);}
 		
         if (!alreadyShot)
         {
@@ -308,18 +312,13 @@ public class GuardAI : MonoBehaviour
         bulletsLeft = magCapacity;
         health = maxHealth;
 		
-		if (animator == null)
-		{
-			Debug.LogError("Animator Not Found on " + gameObject.name);
-		}
-        else
-		{
-			animator = GetComponent<Animator>();
-			Debug.Log(animator);
-		}
-		
-		
+		animHandler = GetComponentInChildren<GuardAnimationHandler>();
 
+		if (animHandler == null)
+		{
+			Debug.LogError("GuardAnimationHandler not found in children of " + gameObject.name);
+		}
+		
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
         trail =>
@@ -343,64 +342,67 @@ public class GuardAI : MonoBehaviour
 
     private void Update()
     {
+		//Check Sight
+		Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
+		Collider[] targetsInInnerFOV = Physics.OverlapSphere(transform.position, innerDetectionRadius);
+		playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
+		playerInLineOfSight = CheckLineOfSight();
 		
-        //Check Sight
-	Collider[] targetsInFOV = Physics.OverlapSphere(transform.position, detectionRadius);
- 	Collider[] targetsInInnerFOV = Physics.OverlapSphere(transform.position, innerDetectionRadius);
-    playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
-	playerInLineOfSight = CheckLineOfSight();
-		
-	bool playerDetected = false;
-	foreach (Collider c in targetsInFOV)
-	{
-		if (c.CompareTag("Player"))
+		bool playerDetected = false;
+		foreach (Collider c in targetsInFOV)
 		{
-			float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
-			if (Mathf.Abs(signedAngle) < detectionAngle / 2)
+			if (c.CompareTag("Player"))
 			{
-				playerDetected = true;
+				float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
+				if (Mathf.Abs(signedAngle) < detectionAngle / 2)
+				{
+					playerDetected = true;
+				}
+				break;
 			}
-			break;
 		}
-	}
  	
-	foreach (Collider c in targetsInInnerFOV)
-  	{
-   		if (c.CompareTag("Player"))
-     	{
-       		float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
-			if (Mathf.Abs(signedAngle) < innerDetectionAngle / 2)
+		foreach (Collider c in targetsInInnerFOV)
+		{
+			if (c.CompareTag("Player"))
 			{
-				playerDetected = true;
+				float signedAngle = Vector3.Angle(transform.forward,c.transform.position - transform.position);
+				if (Mathf.Abs(signedAngle) < innerDetectionAngle / 2)
+				{
+					playerDetected = true;
+				}
+			break;
 			}
-   		break;
-       	}
-   	}
+		}
 		
-	_UpdateAlertState(playerDetected);
-		
+		_UpdateAlertState(playerDetected);
+	
         //Controls Enemy Behavior
-	if (!playerDetected && !playerInAttackRange)
-        {
-            patrolling();
-        }
+		if (!playerDetected && !playerInLineOfSight && !playerInAttackRange)
+		{
+			patrolling();
+			animHandler.guardIsWalking();
+		}
 
-        else if (!playerInAttackRange && playerDetected && playerInLineOfSight)
-        {
-            chasing();
-        }
+		else if (!playerInAttackRange && playerDetected && playerInLineOfSight)
+		{
+			chasing();
+			animHandler.guardIsRunning();
+		}
 
-        else if (playerInAttackRange && playerDetected && playerInLineOfSight)
-        {
-            
-            if (HasClearShot())
-            {
-                attacking();
-            }
-            else if (!HasClearShot()) 
-            {
-                chasing();
-            }
+		else if (playerInAttackRange && playerDetected && playerInLineOfSight)
+		{
+			
+			if (HasClearShot())
+			{
+				animHandler.guardIsShooting();
+				attacking();
+			}
+			else if (!HasClearShot()) 
+			{
+				chasing();
+				animHandler.guardIsRunning();
+			}
             
         }
 		
@@ -425,13 +427,10 @@ public class GuardAI : MonoBehaviour
 
         health -= Mathf.RoundToInt(finalDamageTaken);
 		
-		//Testing
-		Debug.Log(damageTaken);
-		
         if (health < 0)
         {
+			Destroy(gameObject);
             player.GetComponent<PlayerStats>().gainExperience(guardXP);
-            Destroy(gameObject);
         }
     }
 
@@ -462,8 +461,6 @@ public class GuardAI : MonoBehaviour
 		return false;
 	}
 	
-
-	
 	//Debugging
 	private void OnDrawGizmos()
 	{
@@ -476,14 +473,14 @@ public class GuardAI : MonoBehaviour
 	}
 	
 	//Accessed by Player Movement for noise levels
-	public void changeAlertLevel(int changeAmount)
+	public void changeAlertLevel(float changeAmount)
 	{
 		alertLevel = alertLevel + changeAmount;
 	}
 	
 	private void _UpdateAlertState(bool playerDetected)
 	{
-		Debug.Log(alertStage);
+		//Debug.Log(alertStage);
 		
 		switch (alertStage)
 		{
@@ -492,11 +489,15 @@ public class GuardAI : MonoBehaviour
 				{
 					alertLevel++;
 					alertStage = AlertStage.Suspicion;
-					if (alertLevel >= 100)
-					{
-						alertStage = AlertStage.Search;
-						phase = 1;
-					}
+					phase = 1;
+				}
+				if (phase == 2)
+				{
+					alertStage = AlertStage.Search;
+				}
+				else if (phase == 3)
+				{
+					alertStage = AlertStage.Alert;
 				}
 				
 				break;
@@ -513,6 +514,19 @@ public class GuardAI : MonoBehaviour
 						alertStage = AlertStage.Search;
 						phase = 2;
 					}
+				}
+				else if (!playerDetected || !CheckLineOfSight())
+				{
+					alertLevel--;
+				}
+				
+				if (phase == 2)
+				{
+					alertStage = AlertStage.Search;
+				}
+				else if (phase == 3)
+				{
+					alertStage = AlertStage.Alert;
 				}
 				
 				
@@ -542,6 +556,11 @@ public class GuardAI : MonoBehaviour
 				{
 					searchTimer--;
 					alertLevel--;
+				}
+				
+				if (phase == 3)
+				{
+					alertStage = AlertStage.Alert;
 				}
 				break;
 			

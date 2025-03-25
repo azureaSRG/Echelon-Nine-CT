@@ -258,10 +258,15 @@ public class ModularGunSystem : MonoBehaviour
         readyToShoot = false;
 
         //Spread/Accuracy
-        float spreadX = Random.Range(-horizontalSpread-firingSpread, horizontalSpread+firingSpread);
-        float spreadY = Random.Range(-verticalSpread-firingSpread, verticalSpread+firingSpread);
+        // Spread/Accuracy
+		float spreadX = Random.Range(-horizontalSpread - firingSpread, horizontalSpread + firingSpread);
+		float spreadY = Random.Range(-verticalSpread - firingSpread, verticalSpread + firingSpread);
 
-        Vector3 direction = fpsCam.transform.forward + new Vector3(spreadX, spreadY, 0);
+		// Adjust direction based on camera's orientation
+		Vector3 spreadOffset = (fpsCam.transform.right * spreadX) + (fpsCam.transform.up * spreadY);
+		Vector3 direction = fpsCam.transform.forward + spreadOffset;
+
+		direction.Normalize(); // Normalize to maintain proper direction
 
         //Clones Shell Casings
         if (!isMalfunction) { Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation); }
