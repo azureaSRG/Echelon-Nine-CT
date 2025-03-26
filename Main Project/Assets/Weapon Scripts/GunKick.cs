@@ -2,72 +2,58 @@ using UnityEngine;
 
 public class GunKick : MonoBehaviour
 {
-    private Vector3 currentRotation, targetRotation, currentPosition, targetPosition, startingPosition;
-
-    [SerializeField]
-    private float recoilX;
-    [SerializeField]
-    private float recoilY;
-    [SerializeField]
-    private float recoilZ;
-    [SerializeField]
-    private float kickBackZ;
-
-    private float xrecoil, yrecoil, zrecoil, zkickback, snap, returns;
-
-    [SerializeField]
-    private Transform initialPosition;
-    private float snappiness = 8f;
-    private float returnAmount = 8f;
-
-    void Start()
-    {
-        startingPosition = initialPosition.transform.localPosition;
-        ResetRecoil();
-
-    }
-
-    void Update()
-    {
-        targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, Time.deltaTime * returnAmount);
-        currentRotation = Vector3.Slerp(currentRotation, targetRotation, Time.fixedDeltaTime * snappiness);
-        transform.localRotation = Quaternion.Euler(currentRotation);
-        Back();
-    }
-
-    public void Recoil()
-    {
-        targetPosition -= new Vector3(0, 0, kickBackZ);
-        targetRotation += new Vector3(recoilX, Random.Range(-recoilY, recoilY), Random.Range(-recoilZ, recoilZ));
-    }
-
-    void Back()
-    {
-        targetPosition = Vector3.Lerp(targetPosition, startingPosition, Time.deltaTime * returnAmount);
-        currentPosition = Vector3.Lerp(currentPosition, targetPosition, Time.fixedDeltaTime * snappiness);
-        transform.localPosition = currentPosition;
-    }
-
-    public void ResetRecoil()
-    {
-        // Reset all recoil and transform values
-        targetRotation = Vector3.zero;
-        currentRotation = Vector3.zero;
-        targetPosition = startingPosition;
-        currentPosition = startingPosition;
-
-        transform.localRotation = Quaternion.identity;
-        transform.localPosition = startingPosition;
-
-    }
-
-    private void OnEnable()
-    {
-        ResetRecoil();
-    }
-
-    private void OnDisable()
-    {
-        ResetRecoil();
-    }
+    public Transform recoilPosition;
+	public Transform rotationPoint;
+	
+	public float positionalRecoilSpeed = 8f;
+	public float rotationRecoilSpeed = 8f;
+	
+	public float positionalReturnSpeed = 18f;
+	public float rotationalReturnSpeed = 38f;
+	
+	public Vector3 RecoilRotation = new Vector3(10,5,7);
+	public Vector3 RecoilKickback = new Vector3(0.015f,0f, -0.2f);
+	
+	public Vector3 RecoilRotationAim = new Vector3(10,4,6);
+	public Vector3 RecoilKickbackAim = new Vector3(0.015f,0f,-0.2f);
+	
+	Vector3 rotationalRecoil, positionalRecoil, Rot;
+	public bool aiming;
+	
+	public void Fire()
+	{
+		if (aiming)
+		{
+			rotationalRecoil += new Vector3(-RecoilRotationAim.x, Random.Range(-RecoilRotationAim.y,RecoilRotationAim.y), Random.Range(-RecoilRotationAim.z, RecoilRotationAim.z));
+			positionalRecoil += new Vector3(-RecoilKickbackAim.x, Random.Range(-RecoilKickbackAim.y,RecoilKickbackAim.y), Random.Range(-RecoilKickbackAim.z, RecoilKickbackAim.z));
+			
+		}
+		else
+		{
+			rotationalRecoil += new Vector3(-RecoilRotation.x, Random.Range(-RecoilRotation.y,RecoilRotation.y), Random.Range(-RecoilRotation.z, RecoilRotation.z));
+			positionalRecoil += new Vector3(-RecoilKickback.x, Random.Range(-RecoilKickback.y,RecoilKickback.y), Random.Range(-RecoilKickback.z, RecoilKickback.z));
+		}
+	}
+	
+	void FixedUpdate()
+	{
+		rotationalRecoil = Vector3.Lerp(rotationalRecoil, Vector3.zero, rotationalReturnSpeed*Time.deltaTime);
+		positionalRecoil = Vector3.Lerp(positionalRecoil, Vector3.zero, positionalRecoilSpeed*Time.deltaTime);
+		
+		recoilPosition.localPosition = Vector3.Slerp(recoilPosition.localPosition, positionalRecoil, positionalRecoilSpeed*Time.deltaTime);
+		Rot = Vector3.Slerp(Rot, rotationalRecoil, rotationRecoilSpeed*Time.fixedDeltaTime);
+		rotationPoint.localRotation = Quaternion.Euler(Rot);
+	}
+	
+	void Update()
+	{
+		if (Input.GetButton("Fire2"))
+		{
+			aiming = true;
+		}
+		else
+		{
+			aiming = false;
+		}
+	}
 }

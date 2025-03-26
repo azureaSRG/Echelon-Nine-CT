@@ -3,21 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public enum FireModes
-{
-	Safe,
- 	SemiAuto,
-  	FullAuto,
-   	Burst
-}
-
 public class ModularGunSystem : MonoBehaviour
 {
     /*
     Displayed Information (This can be manipulated in the inspector)
     These variables vary from gun to gun
     */
-
     public bool selection;
     public int excludedClasses;
     /*
@@ -30,8 +21,6 @@ public class ModularGunSystem : MonoBehaviour
      * 6 = Bravo & Delta Only
      * 7 = Alpha & Bravo Only
      */
-
-    
 
     //Ammo Information
     public string caliber;
@@ -53,32 +42,34 @@ public class ModularGunSystem : MonoBehaviour
 
     //Gun Information
     public float cost, probabilityOfMalfunction;
-    public static int mass;
+    public int mass;
 
     //Handling Information
-    public float fullReloadTime,partialReloadTime, equipSpeed;
+    public float fullReloadTime, partialReloadTime;
 
     //Accuracy Information
     public float horizontalSpread;
     public float verticalSpread;
+	public float firingSpreadRate, maxFiringSpread;
 
     /*
-    Weapon Specific Information:
+    Private Variables:
     These variables are changed based on the usage
     */
 
     private float firingSpread, movementInaccuracy;
-    public float firingSpreadRate, maxFiringSpread;
-
     private int magazinesLeft, bulletsLeft, bulletsShot, bulletsPerTap;
     private bool shooting, readyToShoot, reloading;
 
     //Malfunctions
     private bool isMalfunction;
     private int malfunctionType;
-
+	
+	//CAMERA AND TRAILS
+	
     //References
     public Camera fpsCam;
+	public GameObject camHolder;
     public Transform attackPoint;
     public LayerMask enemyDef;
 
@@ -93,8 +84,6 @@ public class ModularGunSystem : MonoBehaviour
     public float MinVertexDistance = 0.1f;
     public Gradient Color;
     public Transform TrailLeave;
-    //public ImpactType ImpactType;
-
     public float MissDistance = 100f;
     public float SimulationSpeed = 200f;
     private ObjectPool<TrailRenderer> TrailPool;
@@ -102,10 +91,6 @@ public class ModularGunSystem : MonoBehaviour
     //Casing Ejection
     public GameObject shellPrefab;
     public Transform shellEjectionPoint;
-
-    //Bullet Drop Variables
-    public float bulletLifetime;
-    public float gravityForce;
 
     //RELOADING
     //Refills ammo at beginning
@@ -156,12 +141,15 @@ public class ModularGunSystem : MonoBehaviour
     {
         readyToShoot = true;
     }
-
+	
+	//Firing Spread Variation and Movement Varitation
     private float findShootingVariation()
     {
+		//Finds speed based on velocity of camera
         float movementVariation = fpsCam.velocity.magnitude / 10;
         float modifiedMaxFiringSpread = movementVariation + maxFiringSpread;
-
+		
+		//Finds firing spread if aiming
         if (Input.GetButton("Fire2"))
         {
             firingSpread += (firingSpreadRate/2 * Time.deltaTime);
@@ -171,7 +159,7 @@ public class ModularGunSystem : MonoBehaviour
             firingSpread += (firingSpreadRate * Time.deltaTime);
         }
 
-        //Prevents firingSpread from going over
+        //Prevents firingSpread from going over capped value
         if (Input.GetButton("Fire2"))
         {
             firingSpread = Mathf.Clamp(firingSpread, -modifiedMaxFiringSpread / 2, modifiedMaxFiringSpread / 2);
@@ -180,7 +168,7 @@ public class ModularGunSystem : MonoBehaviour
         {
             firingSpread = Mathf.Clamp(firingSpread, -modifiedMaxFiringSpread, modifiedMaxFiringSpread);
         }
-
+		
         return firingSpread;
     }
 
@@ -224,12 +212,14 @@ public class ModularGunSystem : MonoBehaviour
         {
             Reload();
         }
-
+		
+		//Checks if need to fix malfunction
         else if (Input.GetKeyDown(KeyCode.R) && isMalfunction)
         {
             fixMalfunction();
         }
-
+		
+		//If conditions are satisifed. Fire rate, not shooting already, not reloading and has ammo
         if (readyToShoot && shooting && !reloading && bulletsLeft > 0)
         {
             bulletsShot = bulletsPerTap;
@@ -237,12 +227,15 @@ public class ModularGunSystem : MonoBehaviour
         }
     }
 	
+	//Scales damage based on distance away from target
 	private float findDistanceMultiplier(float distance)
 	{	
+		
+		//Checks if distance is longer than effective range <- No damage dropoff
 		if ((distance*2) > effectiveRange)
 		{
+			//Finds multiplier based on how far from max
 			float distancePenalty = (maxRange-distance)/maxRange;
-			Debug.Log(distancePenalty);
 			return distancePenalty;
 		}
 		else
@@ -252,39 +245,39 @@ public class ModularGunSystem : MonoBehaviour
 		}
 	}
 	
-    //Shoots raycasts
+    //Shoots Raycasts for collision
     private void Shoot()
     {
         readyToShoot = false;
-
+		
+		//Camera Recoil
+		camHolder.GetComponentInParent<CamRecoil>().Fire();
+		GetComponentInParent<GunKick>().Fire();
+		
         //Spread/Accuracy
-        // Spread/Accuracy
 		float spreadX = Random.Range(-horizontalSpread - firingSpread, horizontalSpread + firingSpread);
 		float spreadY = Random.Range(-verticalSpread - firingSpread, verticalSpread + firingSpread);
 
 		// Adjust direction based on camera's orientation
 		Vector3 spreadOffset = (fpsCam.transform.right * spreadX) + (fpsCam.transform.up * spreadY);
 		Vector3 direction = fpsCam.transform.forward + spreadOffset;
-
 		direction.Normalize(); // Normalize to maintain proper direction
 
         //Clones Shell Casings
         if (!isMalfunction) { Instantiate(shellPrefab, shellEjectionPoint.position, shellEjectionPoint.rotation); }
         checkMalfunction(probabilityOfMalfunction, 0f);
 
-        //GetComponent<GunKick>().Recoil();
-
-        //Raycast
+        //Checks if raycast hit anything
         if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, maxRange, enemyDef) && (!isMalfunction))
         {
+			//Starts trail function
             StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
 			
+			//Finds distance penalty
 			float distance = Vector3.Distance(rayHit.collider.transform.position, attackPoint.transform.position);
-			
-			Debug.Log(distance);
-			
 			float distanceMultiplier = findDistanceMultiplier(distance);
 			
+			//Checks if raycast hit an enemy
             if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
             {
                 if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
@@ -314,13 +307,14 @@ public class ModularGunSystem : MonoBehaviour
                 StartCoroutine(PlayTrail(TrailLeave.transform.position, TrailLeave.transform.position + (direction * MissDistance), new RaycastHit()));
             }
         }
-
+		
         bulletsLeft--;
         bulletsShot--;
 
         //Executes function with delay
         Invoke("ResetShooting", timeBetweenShots);
-
+		
+		
         if (bulletsShot > 0  && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
@@ -331,7 +325,7 @@ public class ModularGunSystem : MonoBehaviour
                 isChambered = false;
             }
         }
-
+		
         else if (isMalfunction)
         {
             Debug.Log("Gun Malfunction");
@@ -346,7 +340,8 @@ public class ModularGunSystem : MonoBehaviour
     {
         isMalfunction = false;
     }
-
+	
+	//Checks if the gun should malfunction based on chance
     private void checkMalfunction(float malChance, float damage)
     {
         float chanceOfMalfunction = 1 - (malChance);
@@ -368,8 +363,8 @@ public class ModularGunSystem : MonoBehaviour
         }
     }
 
-
-    //Trail Renderers
+	
+    //Creates the trails
     private TrailRenderer CreateTrail()
     {
         GameObject instance = new GameObject("Bullet Trail");
@@ -385,6 +380,7 @@ public class ModularGunSystem : MonoBehaviour
         return trail;
     }
 
+	//Dislays the trails
     private IEnumerator PlayTrail(Vector3 StartPoint, Vector3 EndPoint, RaycastHit Hit)
     {
         TrailRenderer instance = TrailPool.Get();
@@ -418,32 +414,31 @@ public class ModularGunSystem : MonoBehaviour
         TrailPool.Release(instance);
     }
 
-    //Camera Shake
+    //Camera Shake for explosions
     private IEnumerator Shake(float duration, float magnitude)
     {
         Vector3 originalPos = fpsCam.transform.localPosition;
         float elapsed = 0.0f;
-
+		
+		//Shakes camera for set duration
         while (elapsed < duration)
         {
+			//Rapidly changes position of camera
             float x = Random.Range(-1f, 1f) * magnitude;
             float y = Random.Range(-1f, 1f) * magnitude;
-
+			
             fpsCam.transform.localPosition = originalPos + new Vector3(x, y, 0);
 
             elapsed += Time.deltaTime;
             yield return null;
         }
-
+		
+		//Resets camera back to original position
         fpsCam.transform.localPosition = originalPos;
     }
    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     // Start is called before the first frame update
-    void Awake()
-    {
-    	//firemode Firemodes = Firemodes.Safe;
-    }
     
     void Start()
     {
@@ -476,4 +471,6 @@ public class ModularGunSystem : MonoBehaviour
     {
         MyInput();
     }
+	
+	
 }
