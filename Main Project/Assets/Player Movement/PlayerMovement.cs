@@ -160,7 +160,7 @@ public class PlayerMovement : MonoBehaviour
 			//It should be impossible for guards to detect idle players from noise alone
 			case Actions.Idle:
 			{
-				noiseLevel = 40 + Random.Range(-3f,3f);
+				noiseLevel = Random.Range(0f,3f);
 				//Alert Level does not change
 				if (playerAction == "Walking")
 				{
@@ -180,7 +180,7 @@ public class PlayerMovement : MonoBehaviour
 			//Slow walking should not detect guards from noise alone
 			case Actions.SlowWalk:
 			{
-				noiseLevel = 50 + Random.Range(-5f,5f);
+				noiseLevel = 10 + Random.Range(-5f,5f);
 				if (playerAction == "Walking")
 				{
 					action = Actions.Walking;
@@ -199,7 +199,7 @@ public class PlayerMovement : MonoBehaviour
 			//Walking causes guard to detect by noise
 			case Actions.Walking:
 			{
-				noiseLevel = 60 + Random.Range(-9f,9f);
+				noiseLevel = 20 + Random.Range(-9f,9f);
 				if (checkGuardsInNoiseRadius(noiseLevel))
 				{
 					increaseAlertLevelOnGuards(10f,noiseLevel);
@@ -222,7 +222,7 @@ public class PlayerMovement : MonoBehaviour
 			
 			case Actions.Running:
 			{
-				noiseLevel = 75 + Random.Range(-12f,12f);
+				noiseLevel = 35 + Random.Range(-12f,12f);
 				if (checkGuardsInNoiseRadius(noiseLevel))
 				{
 					increaseAlertLevelOnGuards(20f,noiseLevel);

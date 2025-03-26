@@ -5378,7 +5378,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 60d91f925d8c1e442bb6596dfb94ffff, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12863,7 +12863,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: attackRange
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardDamage
@@ -12887,7 +12887,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: detectionRadius
@@ -12899,7 +12899,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -12911,7 +12911,7 @@ PrefabInstance:
       objectReference: {fileID: 1777002419}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardStoppingPower
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: innerDetectionAngle
@@ -14570,22 +14570,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.0083351135
-      value: 0.10848999
-      inSlope: 0.09241798
-      outSlope: 0.09241798
+      time: 0.0042381287
+      value: 0.09529841
+      inSlope: -0.3324696
+      outSlope: -0.3324696
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.20675261
+      outWeight: 0.041493412
     - serializedVersion: 3
-      time: 0.9916992
-      value: 0.00037002563
-      inSlope: -0.14391945
-      outSlope: -0.14391945
+      time: 0.9957886
+      value: 0.00064468384
+      inSlope: -0.018359374
+      outSlope: -0.018359374
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.24893476
+      inWeight: 0.28215778
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -14624,7 +14624,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   TrailLeave: {fileID: 625254241}
   MissDistance: 100
-  SimulationSpeed: 200
+  SimulationSpeed: 771.3
   shellPrefab: {fileID: 6514429304743046488, guid: 24196ef6dc3fff84ca7ded0d9b6a2d66, type: 3}
   shellEjectionPoint: {fileID: 1029307992}
   bulletLifetime: 274.26
@@ -16634,7 +16634,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -16650,7 +16650,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -23496,7 +23496,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: attackRange
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardDamage
@@ -23520,7 +23520,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -23536,7 +23536,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -31807,7 +31807,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: attackRange
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardDamage
@@ -31831,7 +31831,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -31847,7 +31847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -33028,7 +33028,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 33269b2b610f4c245a712795c1927939, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -35086,7 +35086,7 @@ MonoBehaviour:
   bodyDamage: 80
   legDamage: 29
   armDamage: 15
-  bulletPower: 0
+  bulletPower: 6
   armorPenetration: 0.33
   timeBetweenShots: 0.1
   muzzleVelocity: 755.8
@@ -35132,7 +35132,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   Duration: 0.5
-  MinVertexDistance: 0.1
+  MinVertexDistance: 2
   Color:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
@@ -36318,9 +36318,9 @@ MonoBehaviour:
   fullReloadTime: 2.13
   partialReloadTime: 1.75
   equipSpeed: 0
-  horizontalSpread: 0.01
-  verticalSpread: 0.01
-  firingSpreadRate: 0.08
+  horizontalSpread: 0.02
+  verticalSpread: 0.02
+  firingSpreadRate: 0.05
   maxFiringSpread: 0.1
   fpsCam: {fileID: 258710838768693869}
   attackPoint: {fileID: 1913055080}
@@ -40144,7 +40144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: attackRange
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: guardDamage
@@ -40168,7 +40168,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -40184,7 +40184,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -41898,7 +41898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10ca0a13f5cca0c44910e5f9f8fba8a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 54
+  health: 1249
   maxHealth: 1249
   maxArmorPoints: 0
   armorResistance: 0

@@ -92,10 +92,7 @@ public class GuardAI : MonoBehaviour
 		
         vectorStart = new Vector3(startingPatrolPoint.position.x, startingPatrolPoint.position.y, startingPatrolPoint.position.z);
         vectorEnd = new Vector3(endingPatrolPoint.position.x, endingPatrolPoint.position.y, endingPatrolPoint.position.z);
-        walkPointSet = true;
-		
-		prevDetectionAngle = detectionAngle;
-		alertStage = AlertStage.Stealth;
+        walkPointSet = false;
     }
 
     //PATROLLING STATE
@@ -216,12 +213,16 @@ public class GuardAI : MonoBehaviour
         
 
         if (Physics.Raycast(transform.position, direction, out rayHit, range, playerMask))
-        {
-            if (rayHit.collider.CompareTag("Player"))
-                {
-                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(guardDamage, bulletPen, guardBulletPower);
-                }
-        }
+		{
+			if (rayHit.collider.CompareTag("Player"))
+			{
+				PlayerStats playerStats = rayHit.collider.GetComponent<PlayerStats>();
+				if (playerStats != null)
+				{
+					playerStats.damagePlayer(guardDamage, bulletPen, guardBulletPower);
+				}
+			}
+		}
 
         Invoke("resetShooting", timeBetweenShots);
 
@@ -313,11 +314,15 @@ public class GuardAI : MonoBehaviour
         health = maxHealth;
 		
 		animHandler = GetComponentInChildren<GuardAnimationHandler>();
-
+			
 		if (animHandler == null)
 		{
 			Debug.LogError("GuardAnimationHandler not found in children of " + gameObject.name);
 		}
+		
+		prevDetectionRadius = detectionRadius;
+		prevDetectionAngle = detectionAngle;
+		alertStage = AlertStage.Stealth;
 		
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
@@ -378,13 +383,13 @@ public class GuardAI : MonoBehaviour
 		_UpdateAlertState(playerDetected);
 	
         //Controls Enemy Behavior
-		if (!playerDetected && !playerInLineOfSight && !playerInAttackRange)
+		if (!playerDetected && !playerInLineOfSight && !playerInAttackRange && !stationary && phase != 3)
 		{
 			patrolling();
 			animHandler.guardIsWalking();
 		}
 
-		else if (!playerInAttackRange && playerDetected && playerInLineOfSight)
+		else if ((!playerInAttackRange && playerDetected && playerInLineOfSight) || (phase == 3 && !playerInAttackRange))
 		{
 			chasing();
 			animHandler.guardIsRunning();
@@ -488,8 +493,11 @@ public class GuardAI : MonoBehaviour
 				if (playerDetected && CheckLineOfSight())
 				{
 					alertLevel++;
-					alertStage = AlertStage.Suspicion;
-					phase = 1;
+					if (alertLevel >= 50)
+					{
+						alertStage = AlertStage.Suspicion;
+						phase = 1;
+					}
 				}
 				if (phase == 2)
 				{
