@@ -25,13 +25,13 @@ public class GunKick : MonoBehaviour
 		if (aiming)
 		{
 			rotationalRecoil += new Vector3(-RecoilRotationAim.x, Random.Range(-RecoilRotationAim.y,RecoilRotationAim.y), Random.Range(-RecoilRotationAim.z, RecoilRotationAim.z));
-			positionalRecoil += new Vector3(-RecoilKickbackAim.x, Random.Range(-RecoilKickbackAim.y,RecoilKickbackAim.y), Random.Range(-RecoilKickbackAim.z, RecoilKickbackAim.z));
+			positionalRecoil += new Vector3(-RecoilKickbackAim.x, Random.Range(-RecoilKickbackAim.y,RecoilKickbackAim.y), Random.Range(-RecoilKickbackAim.z, 0f));
 			
 		}
 		else
 		{
 			rotationalRecoil += new Vector3(-RecoilRotation.x, Random.Range(-RecoilRotation.y,RecoilRotation.y), Random.Range(-RecoilRotation.z, RecoilRotation.z));
-			positionalRecoil += new Vector3(-RecoilKickback.x, Random.Range(-RecoilKickback.y,RecoilKickback.y), Random.Range(-RecoilKickback.z, RecoilKickback.z));
+			positionalRecoil += new Vector3(-RecoilKickback.x, Random.Range(-RecoilKickback.y,RecoilKickback.y), Random.Range(-RecoilKickback.z, 0f));
 		}
 	}
 	

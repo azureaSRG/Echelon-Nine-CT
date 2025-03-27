@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 public class CamRecoil : MonoBehaviour
 {
-	public float rotationSpeed, returnSpeed;
-	public Vector3 recoilRotation = new Vector3(2f,2f,2f);
-	public Vector3 recoilRotationAiming = new Vector3(0.5f,0.5f,0.5f);
-	public bool aiming;
+	private float rotationSpeed, returnSpeed;
+	private Vector3 recoilRotation = new Vector3(2f,2f,2f);
+	private Vector3 recoilRotationAiming = new Vector3(0.5f,0.5f,0.5f);
+	private bool aiming;
 	
 	private Vector3 currentRotation;
 	private Vector3 Rot;
@@ -23,15 +23,17 @@ public class CamRecoil : MonoBehaviour
 		transform.localRotation = Quaternion.Euler(Rot);
 	}
 	
-	public void Fire()
+	public void Fire(Vector3 recoilRot, Vector3 recoilRotAiming, float speed, float recoverySpeed)
 	{
+		returnSpeed = recoverySpeed;
+		rotationSpeed = speed;
 		if (aiming)
 		{
-			currentRotation += new Vector3(-recoilRotationAiming.x, Random.Range(-recoilRotationAiming.y, recoilRotationAiming.y), Random.Range(-recoilRotationAiming.z,recoilRotationAiming.z));
+			currentRotation += new Vector3(-recoilRotAiming.x, Random.Range(-recoilRotAiming.y, recoilRotAiming.y), Random.Range(-recoilRotAiming.z,recoilRotAiming.z));
 		}
 		else
 		{
-			currentRotation += new Vector3(-recoilRotation.x, Random.Range(-recoilRotation.y, recoilRotation.y) ,Random.Range(-recoilRotation.z, recoilRotation.z));
+			currentRotation += new Vector3(-recoilRot.x, Random.Range(-recoilRot.y, recoilRot.y) ,Random.Range(-recoilRot.z, recoilRot.z));
 		}
 		
 	}

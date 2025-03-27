@@ -31,7 +31,6 @@ public class ModularGunSystem : MonoBehaviour
 
     //Magazine Information
     private int[] magList = new int[] {0};
-    private bool isChambered = true;
 
     //Damage Information
     public int headDamage, bodyDamage, legDamage, armDamage, bulletPower;
@@ -51,7 +50,12 @@ public class ModularGunSystem : MonoBehaviour
     public float horizontalSpread;
     public float verticalSpread;
 	public float firingSpreadRate, maxFiringSpread;
-
+	
+	//Camera Recoil
+	public float recoilCamSpeed, recoilCamRecoverySpeed;
+	public Vector3 recoilCam;
+	public Vector3 recoilAimCam;
+	
     /*
     Private Variables:
     These variables are changed based on the usage
@@ -110,11 +114,6 @@ public class ModularGunSystem : MonoBehaviour
         if (bulletsLeft == 0)
         {
             magazinesLeft--;
-        }
-        if (!isChambered)
-        {
-            isChambered = true;
-            bulletsLeft--;
         }
 
         bulletsLeft = magazineSize;
@@ -251,7 +250,7 @@ public class ModularGunSystem : MonoBehaviour
         readyToShoot = false;
 		
 		//Camera Recoil
-		camHolder.GetComponentInParent<CamRecoil>().Fire();
+		camHolder.GetComponentInParent<CamRecoil>().Fire(recoilCam, recoilAimCam, recoilCamSpeed, recoilCamRecoverySpeed);
 		GetComponentInParent<GunKick>().Fire();
 		
         //Spread/Accuracy
@@ -315,15 +314,11 @@ public class ModularGunSystem : MonoBehaviour
         Invoke("ResetShooting", timeBetweenShots);
 		
 		
-        if (bulletsShot > 0  && (bulletsLeft > 0 | isChambered) && magazinesLeft > 0 && !isMalfunction)
+        if (bulletsShot > 0  && (bulletsLeft > 0) && magazinesLeft > 0 && !isMalfunction)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
             
             Invoke("Shoot", timeBetweenShots);
-            if (bulletsLeft <= 0)
-            {
-                isChambered = false;
-            }
         }
 		
         else if (isMalfunction)
@@ -359,7 +354,7 @@ public class ModularGunSystem : MonoBehaviour
         }
         else
         {
-            Debug.Log("Malfunciton Check Failed");
+            //Debug.Log("Malfunciton Check Failed");
         }
     }
 
