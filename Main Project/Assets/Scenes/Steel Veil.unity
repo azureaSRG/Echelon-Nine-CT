@@ -7495,8 +7495,8 @@ MonoBehaviour:
   partialReloadTime: 2
   horizontalSpread: 0
   verticalSpread: 0
-  firingSpreadRate: 0.2
-  maxFiringSpread: 0.5
+  firingSpreadRate: 0.02
+  maxFiringSpread: 0.1
   recoilCamSpeed: 10
   recoilCamRecoverySpeed: 4
   recoilCam: {x: 20, y: 20, z: 20}
@@ -35439,7 +35439,7 @@ MonoBehaviour:
   recoilCamSpeed: 4
   recoilCamRecoverySpeed: 4
   recoilCam: {x: 4, y: 4, z: 4}
-  recoilAimCam: {x: 1, y: 1, z: 1}
+  recoilAimCam: {x: 2, y: 2, z: 2}
   fpsCam: {fileID: 258710838768693869}
   camHolder: {fileID: 2068647277}
   attackPoint: {fileID: 1190529345}
@@ -35550,7 +35550,7 @@ MonoBehaviour:
   RecoilRotation: {x: 15, y: 10, z: 5}
   RecoilKickback: {x: 0.15, y: 0.4, z: 2}
   RecoilRotationAim: {x: 10, y: 4, z: 6}
-  RecoilKickbackAim: {x: 0.03, y: 0.15, z: 1.2}
+  RecoilKickbackAim: {x: 0.06, y: 0.3, z: 1.5}
   aiming: 0
 --- !u!1 &1713951915 stripped
 GameObject:
