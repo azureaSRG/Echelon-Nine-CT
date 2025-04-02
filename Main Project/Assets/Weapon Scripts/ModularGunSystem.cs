@@ -21,7 +21,7 @@ public class ModularGunSystem : MonoBehaviour
      * 6 = Bravo & Delta Only
      * 7 = Alpha & Bravo Only
      */
-
+	
     //Ammo Information
     public string caliber;
     public int magazineSize;
@@ -30,14 +30,15 @@ public class ModularGunSystem : MonoBehaviour
     public bool fullAuto;
 
     //Magazine Information
-    private int[] magList = new int[] {0};
+    private int[] magList;
 
     //Damage Information
     public int headDamage, bodyDamage, legDamage, armDamage, bulletPower;
     public float armorPenetration;
 
     //Firing Information
-    public float timeBetweenShots, muzzleVelocity, effectiveRange, maxRange;
+    public float timeBetweenShots, muzzleVelocity, effectiveRange, maxRange, equipSpeed;
+	private float equipTimer;
 
     //Gun Information
     public float cost, probabilityOfMalfunction;
@@ -55,6 +56,10 @@ public class ModularGunSystem : MonoBehaviour
 	public float recoilCamSpeed, recoilCamRecoverySpeed;
 	public Vector3 recoilCam;
 	public Vector3 recoilAimCam;
+	
+	//Sound Effect
+	[SerializeField] private AudioClip shootingSoundEffect, equipSoundEffect, partialSoundEffect, fullSoundEffect;
+	private AudioSource audioSource;
 	
     /*
     Private Variables:
@@ -74,7 +79,6 @@ public class ModularGunSystem : MonoBehaviour
     //References
     public Camera fpsCam;
 	public GameObject camHolder;
-    public Transform attackPoint;
     public LayerMask enemyDef;
 
     //Bullet Collision Detection
@@ -101,11 +105,12 @@ public class ModularGunSystem : MonoBehaviour
     private void RefillAmmo()
     {
         magazinesLeft = magazineReserves;
-        magList = new int[magazineReserves];
+		magList = new int[magazineSize];
         for (int x = 0; x < magazineReserves; x++)
         {
-            magList[x] = magazineSize;
+			magList[x] = magazineSize;
         }
+		Debug.Log("Ammo Refilled: " + string.Join(", ", magList));
     }
 
     //Sets bullets left to the mag size then sets reloading to false
@@ -115,21 +120,53 @@ public class ModularGunSystem : MonoBehaviour
         {
             magazinesLeft--;
         }
-
-        bulletsLeft = magazineSize;
+        
+		magList[0] = bulletsLeft;
+		sortMagazines(magList);
+		Debug.Log("Ammo Refilled: " + string.Join(", ", magList));
+		bulletsLeft = magList[0];
         reloading = false;
     }
-
+	
+	
+	/*
+	Title: Bubble Sort Implementations (Java)
+	Author: Unknown
+	Date: 4/2/2025
+	Code Language: UnityEngine C#
+	Availability: https://sortvisualizer.com/bubblesort/
+	(Code was converted to sort acsending and to comply with Unity C#, the languages aren't too different)
+	*/
+	private void sortMagazines(int[] arr)
+	{
+		int n = arr.Length;
+		int temp = 0;
+		for (int i = 0; i < n; i++)
+		{
+			for (int j=1; j < n; j++)
+			{
+				if (arr[j-1] < arr[j])
+				{
+					temp = arr[j-1];
+					arr[j-1] = arr[j];
+					arr[j] = temp;
+				}
+			}
+		}
+	}
+	
     //Sets reloading and delays reload finsihed function by time
     private void Reload()
     {
         reloading = true;
         if (bulletsLeft > 0)
         {
+			audioSource.PlayOneShot(partialSoundEffect);
             Invoke("ReloadFinished", partialReloadTime);
         }
         else
         {
+			audioSource.PlayOneShot(fullSoundEffect);
             Invoke("ReloadFinished", fullReloadTime);
         }
 
@@ -194,10 +231,7 @@ public class ModularGunSystem : MonoBehaviour
         else
         {
             findShootingVariation();
-        }
-
-        
-        
+        } 
 
         //Changes firemode
         if (Input.GetKeyDown(KeyCode.V) && fullAutoAllowed)
@@ -226,6 +260,12 @@ public class ModularGunSystem : MonoBehaviour
         }
     }
 	
+	public void weaponEquipDelay()
+	{
+		equipTimer = equipSpeed;
+		audioSource.PlayOneShot(equipSoundEffect);
+	}
+	
 	//Scales damage based on distance away from target
 	private float findDistanceMultiplier(float distance)
 	{	
@@ -248,6 +288,10 @@ public class ModularGunSystem : MonoBehaviour
     private void Shoot()
     {
         readyToShoot = false;
+		
+		//Sound Effect
+		audioSource.pitch = Random.Range(0.95f,1.05f);
+		audioSource.PlayOneShot(shootingSoundEffect);
 		
 		//Camera Recoil
 		camHolder.GetComponentInParent<CamRecoil>().Fire(recoilCam, recoilAimCam, recoilCamSpeed, recoilCamRecoverySpeed);
@@ -273,7 +317,7 @@ public class ModularGunSystem : MonoBehaviour
             StartCoroutine(PlayTrail(TrailLeave.transform.position, rayHit.point, rayHit));
 			
 			//Finds distance penalty
-			float distance = Vector3.Distance(rayHit.collider.transform.position, attackPoint.transform.position);
+			float distance = Vector3.Distance(rayHit.collider.transform.position, TrailLeave.transform.position);
 			float distanceMultiplier = findDistanceMultiplier(distance);
 			
 			//Checks if raycast hit an enemy
@@ -307,7 +351,7 @@ public class ModularGunSystem : MonoBehaviour
             }
         }
 		
-        bulletsLeft--;
+		bulletsLeft--;
         bulletsShot--;
 
         //Executes function with delay
@@ -437,9 +481,12 @@ public class ModularGunSystem : MonoBehaviour
     
     void Start()
     {
+		RefillAmmo();
         bulletsLeft = magazineSize;
         readyToShoot = true;
 
+		audioSource = GetComponent<AudioSource>();
+		
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
         trail =>
@@ -464,7 +511,14 @@ public class ModularGunSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MyInput();
+		if (equipTimer < 0)
+		{
+			MyInput();
+		}
+		else
+		{
+			equipTimer -= Time.deltaTime;
+		}
     }
 	
 	

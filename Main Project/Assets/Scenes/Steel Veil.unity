@@ -2443,13 +2443,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 97553543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.0000000037252899, y: -9.3132246e-10, z: 0.1712274, w: 0.9852315}
   m_LocalPosition: {x: 0.139, y: 0.403, z: -0.304}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1825668989}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 19.718}
 --- !u!1 &98497813
 GameObject:
   m_ObjectHideFlags: 0
@@ -5475,6 +5475,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60d91f925d8c1e442bb6596dfb94ffff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 299138108}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60d91f925d8c1e442bb6596dfb94ffff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 299138111}
   m_SourcePrefab: {fileID: 100100000, guid: 60d91f925d8c1e442bb6596dfb94ffff, type: 3}
 --- !u!1 &231007952
 GameObject:
@@ -7488,6 +7491,7 @@ MonoBehaviour:
   muzzleVelocity: 3.58
   effectiveRange: 100
   maxRange: 4186
+  equipSpeed: 1.2
   cost: 3022.5
   probabilityOfMalfunction: 0
   mass: 0
@@ -7501,9 +7505,12 @@ MonoBehaviour:
   recoilCamRecoverySpeed: 4
   recoilCam: {x: 20, y: 20, z: 20}
   recoilAimCam: {x: 10, y: 10, z: 10}
+  shootingSoundEffect: {fileID: 8300000, guid: dff9cf352e4f394429f93375801f4038, type: 3}
+  equipSoundEffect: {fileID: 8300000, guid: e2aecf698924172429c40f4bd592a6ab, type: 3}
+  partialSoundEffect: {fileID: 8300000, guid: c35bc8ec57c7eba4abe139bfe8991d7a, type: 3}
+  fullSoundEffect: {fileID: 8300000, guid: dfef791318240724e8b8583bd4014197, type: 3}
   fpsCam: {fileID: 258710838768693869}
   camHolder: {fileID: 2068647277}
-  attackPoint: {fileID: 1051290261}
   enemyDef:
     serializedVersion: 2
     m_Bits: 64
@@ -7613,6 +7620,103 @@ MonoBehaviour:
   RecoilRotationAim: {x: 0, y: 0, z: 10}
   RecoilKickbackAim: {x: 1, y: 1, z: 1}
   aiming: 0
+--- !u!82 &299138111
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299138100}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &304446366
 GameObject:
   m_ObjectHideFlags: 0
@@ -13017,7 +13121,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: detectionRadius
@@ -13029,7 +13133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -14681,6 +14785,7 @@ MonoBehaviour:
   muzzleVelocity: 321.6
   effectiveRange: 322.1
   maxRange: 802.3
+  equipSpeed: 0
   cost: 0
   probabilityOfMalfunction: 0
   mass: 0
@@ -14694,9 +14799,12 @@ MonoBehaviour:
   recoilCamRecoverySpeed: 0
   recoilCam: {x: 0, y: 0, z: 0}
   recoilAimCam: {x: 0, y: 0, z: 0}
+  shootingSoundEffect: {fileID: 0}
+  equipSoundEffect: {fileID: 0}
+  partialSoundEffect: {fileID: 0}
+  fullSoundEffect: {fileID: 0}
   fpsCam: {fileID: 258710838768693869}
   camHolder: {fileID: 2068647277}
-  attackPoint: {fileID: 625254241}
   enemyDef:
     serializedVersion: 2
     m_Bits: 64
@@ -16828,7 +16936,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -16844,7 +16952,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -23840,7 +23948,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -23856,7 +23964,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -28906,6 +29014,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e525d5c90c0df01498dca09570cfb5ec, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1825668994}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e525d5c90c0df01498dca09570cfb5ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1825668997}
   m_SourcePrefab: {fileID: 100100000, guid: e525d5c90c0df01498dca09570cfb5ec, type: 3}
 --- !u!1 &1450466570
 GameObject:
@@ -32160,7 +32271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -32176,7 +32287,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots
@@ -33387,6 +33498,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 33269b2b610f4c245a712795c1927939, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1712612519}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 33269b2b610f4c245a712795c1927939, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1712612522}
   m_SourcePrefab: {fileID: 100100000, guid: 33269b2b610f4c245a712795c1927939, type: 3}
 --- !u!43 &1638879465
 Mesh:
@@ -35427,10 +35541,11 @@ MonoBehaviour:
   muzzleVelocity: 755.8
   effectiveRange: 50
   maxRange: 300
+  equipSpeed: 0.9
   cost: 4.04
   probabilityOfMalfunction: 0
   mass: 0
-  fullReloadTime: 2
+  fullReloadTime: 2.4
   partialReloadTime: 1.67
   horizontalSpread: 0
   verticalSpread: 0
@@ -35440,9 +35555,12 @@ MonoBehaviour:
   recoilCamRecoverySpeed: 4
   recoilCam: {x: 4, y: 4, z: 4}
   recoilAimCam: {x: 2, y: 2, z: 2}
+  shootingSoundEffect: {fileID: 8300000, guid: 03a0d7d4d7cf733488053fdf0f364a4c, type: 3}
+  equipSoundEffect: {fileID: 8300000, guid: 2adbd42b974bab8478530e6c71b1c8d1, type: 3}
+  partialSoundEffect: {fileID: 8300000, guid: 7a4dc9e4a3d711e4db7cb6a13f23bcad, type: 3}
+  fullSoundEffect: {fileID: 8300000, guid: 130f6aaaecf88ce488687d86322b4401, type: 3}
   fpsCam: {fileID: 258710838768693869}
   camHolder: {fileID: 2068647277}
-  attackPoint: {fileID: 1190529345}
   enemyDef:
     serializedVersion: 2
     m_Bits: 64
@@ -35552,6 +35670,103 @@ MonoBehaviour:
   RecoilRotationAim: {x: 10, y: 4, z: 6}
   RecoilKickbackAim: {x: 0.06, y: 0.3, z: 1.5}
   aiming: 0
+--- !u!82 &1712612522
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712612513}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1713951915 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5124783316422392670, guid: 9d8fc60e670bdd640b100457a4c3df10, type: 3}
@@ -36657,11 +36872,12 @@ MonoBehaviour:
   muzzleVelocity: 925
   effectiveRange: 450
   maxRange: 3200
+  equipSpeed: 1
   cost: 4600
   probabilityOfMalfunction: 0
   mass: 0
   fullReloadTime: 2.13
-  partialReloadTime: 1.75
+  partialReloadTime: 1.2
   horizontalSpread: 0.01
   verticalSpread: 0.01
   firingSpreadRate: 0.055
@@ -36670,9 +36886,12 @@ MonoBehaviour:
   recoilCamRecoverySpeed: 8
   recoilCam: {x: 1, y: 1, z: 1}
   recoilAimCam: {x: 0.4, y: 0.4, z: 0.4}
+  shootingSoundEffect: {fileID: 8300000, guid: 888d80c8e53709048ac375b500316ce8, type: 3}
+  equipSoundEffect: {fileID: 8300000, guid: 75c94931a07de7d48b45d95b2f730236, type: 3}
+  partialSoundEffect: {fileID: 8300000, guid: d6b5cae5435649d48839b0a05e720f00, type: 3}
+  fullSoundEffect: {fileID: 8300000, guid: 27cd28283b41a244e9b6a8f9a7b463c3, type: 3}
   fpsCam: {fileID: 258710838768693869}
   camHolder: {fileID: 2068647277}
-  attackPoint: {fileID: 1913055080}
   enemyDef:
     serializedVersion: 2
     m_Bits: 64
@@ -36761,6 +36980,103 @@ MonoBehaviour:
   RecoilRotationAim: {x: 10, y: 4, z: 6}
   RecoilKickbackAim: {x: 0.015, y: 0.05, z: 0.2}
   aiming: 0
+--- !u!82 &1825668997
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825668988}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1827716977
 GameObject:
   m_ObjectHideFlags: 0
@@ -40551,7 +40867,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: verticalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: SimulationSpeed
@@ -40567,7 +40883,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: horizontalSpread
-      value: 0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224204810435428977, guid: 901dabd368a21b64ebd4c9da4ece0024, type: 3}
       propertyPath: timeBetweenShots

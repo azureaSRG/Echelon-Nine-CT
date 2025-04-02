@@ -23,6 +23,7 @@ public class SwapWeapon : MonoBehaviour
             bool isSelectable = modularGunSystem == null || modularGunSystem.selection;
 
             weapon.gameObject.SetActive(index == selectedWeapon && isSelectable);
+			weapon.gameObject.GetComponentInChildren<ModularGunSystem>().weaponEquipDelay();
             index++;
         }
     }
