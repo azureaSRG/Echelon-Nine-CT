@@ -93,7 +93,7 @@ public class EnemyAI : MonoBehaviour
         float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
         float spreadY = Random.Range(-verticalSpread, verticalSpread);
 
-        Vector3 direction = (player.position - transform.position).normalized + new Vector3(spreadX, spreadY, 0);
+        Vector3 direction = (player.position - transform.position).normalized + new Vector3(spreadX, spreadY, Vector3.zero);
 
         if (bulletsLeft > 0)
         {
@@ -179,11 +179,6 @@ public class EnemyAI : MonoBehaviour
         }
 
         instance.transform.position = EndPoint;
-
-        if (Hit.collider != null)
-        {
-            //SurfaceManager.Instance.HandleImpact(Hit.transform.gameObject, EndPoint, Hit.normal, ImpactType, 0);
-        }
 
         yield return new WaitForSeconds(Duration);
         yield return null;
