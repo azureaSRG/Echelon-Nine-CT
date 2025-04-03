@@ -411,6 +411,12 @@ public class GuardAI : MonoBehaviour
             
         }
 		
+		else if (!playerInLineOfSight && playerInAttackRange && playerDetected && phase == 3)
+		{
+			chasing();
+			animHandler.guardIsRunning();
+		}
+		
     }
 
     public void takeDamage(int damageTaken, float armorPen, int bulletPower)
