@@ -3,7 +3,16 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Pool;
-
+public enum PhaseChanges
+{
+	Confirmation,
+ 	First Strike,
+  	Engagement,
+   	Reinforcement,
+    	Final Attack,
+     	Neutralization,
+      	Retreat
+}
 public class EnemyAI : MonoBehaviour
 {
 	private EnemyAnimationHandler animHandler;
