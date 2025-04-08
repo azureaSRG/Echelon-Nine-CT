@@ -6,12 +6,12 @@ using UnityEngine.Pool;
 public enum PhaseChanges
 {
 	Confirmation,
- 	First Strike,
+ 	FirstStrike,
   	Engagement,
    	Reinforcement,
-    	Final Attack,
-     	Neutralization,
-      	Retreat
+    FinalAttack,
+    Neutralization,
+    Retreat
 }
 public class EnemyAI : MonoBehaviour
 {
