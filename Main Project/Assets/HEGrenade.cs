@@ -31,9 +31,9 @@ public class HEGrenade : MonoBehaviour
 	
 	void Explode()
 	{
-		Debug.Log("Boom");
-		//Instantiate(explosionEffect, transform.position, transform.rotation);
-		
+		Debug.Log("Effect");
+		Instantiate(explosionEffect, transform.position, transform.rotation);
+		hasExploded = true;
 		
 		Collider[] objectsInRadius = Physics.OverlapSphere(transform.position, explosionRadius);
 		foreach (Collider c in objectsInRadius)
