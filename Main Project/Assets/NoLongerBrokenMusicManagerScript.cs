@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// I asked ChatGPT to rewrite the whole code because I wasn't sure what was wrong with my original code. I gad even fed it through ChatGPT to look for errors and it didn't find any.
-
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance; // Singleton for global access
@@ -33,14 +31,16 @@ public class MusicManager : MonoBehaviour
 
     // Play a specific track by index
     public void PlayTrack(int trackIndex)
-    {
+    {    
+        //Checks to see if the inputted Track is in range of the current amounts of tracking
         if (trackIndex >= 0 && trackIndex < musicTracks.Length)
         {
+            //Checks to see if audio is playing and stops it if it is playing
             if (audioSource.isPlaying)
             {
                 audioSource.Stop();
             }
-
+            // Swaps & plays new track
             audioSource.clip = musicTracks[trackIndex];
             audioSource.Play();
             currentTrackIndex = trackIndex;
@@ -51,6 +51,7 @@ public class MusicManager : MonoBehaviour
         }
     }
 
+    //Start() is a function that gets called by unity when this script is ran for the first time
     private void Start()
     {
         if(musicTracks.Length > 0)
