@@ -49,17 +49,16 @@ public class PlayerMovement : MonoBehaviour
         playerStamina = maxStamina;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
 		
-		//Avoid repeated use if redudant
+
 		_noiseManager(getInput());
 		
-        //Sphere under player checks if the player is in contact with the ground
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-		
-        //Prevents gravity from building up over time
+
         if (isGrounded && velocity.y <0)
         {
             velocity.y = -9f;
