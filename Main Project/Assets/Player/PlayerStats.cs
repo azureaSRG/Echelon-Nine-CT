@@ -9,11 +9,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField]
     public int maxHealth;
     
-    [SerializeField]
-    protected int maxArmorPoints;
+    public int maxArmorPoints;
+	public int armorPoints;
     public float armorResistance;
     public float stoppingPower;
-    private int armorPoints;
     public bool isPlated;
 
     public string playerClass;
