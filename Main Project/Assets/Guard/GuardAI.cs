@@ -61,7 +61,8 @@ public class GuardAI : MonoBehaviour
     private bool reloading;
     [SerializeField]
     private int bulletsLeft, bulletsShot;
-
+	
+	private float swapCooldown = 5f;
 
     //Trails
     public Material Material;
@@ -98,13 +99,18 @@ public class GuardAI : MonoBehaviour
     //PATROLLING STATE
     private void switchPointDirection()
 	{
-		if (transform.position.x == startingPatrolPoint.position.x)
+		swapCooldown -= Time.deltaTime;
+		Debug.Log(pointDirection);
+		Debug.Log(swapCooldown);
+		if ((transform.position.x - startingPatrolPoint.position.x) < 0.1 && (transform.position.z - startingPatrolPoint.position.z) < 0.1 && swapCooldown < 0 && !pointDirection)
 		{
 			pointDirection = true;
+			swapCooldown = 5f;
 		}
-		else if (transform.position.x == endingPatrolPoint.position.x)
+		else if ((transform.position.x - endingPatrolPoint.position.x) < 0.1 && (transform.position.z - endingPatrolPoint.position.z) < 0.1 && swapCooldown < 0 && pointDirection)
 		{
 			pointDirection = false;
+			swapCooldown = 5f;
 		}
 		
 		if (pointDirection)
@@ -140,7 +146,7 @@ public class GuardAI : MonoBehaviour
 }
 
     private void patrolling()
-    {
+	{
         // There are two cases: Enemy wonders randomly or between two points
         // Enemy wanders between two predetermined points
         if (!isWandering)
