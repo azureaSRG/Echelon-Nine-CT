@@ -13,6 +13,131 @@ public enum PhaseChanges
     Neutralization,
     Retreat
 }
+
+public class EnemyAI : MonoBehaviour
+{
+    public Transform muzzlePoint;
+    public Transform player;
+    public float range = 100f;
+    public float fireRate = 0.5f;
+    public float horizontalSpread = 0.05f;
+    public float verticalSpread = 0.05f;
+    public TrailRenderer trailPrefab;
+    public LayerMask playerMask;
+    public int enemyDamage;
+    public int enemyBulletPower;
+    public float bulletPen;
+
+    private float nextFireTime;
+    private ObjectPool<TrailRenderer> trailPool;
+
+    private void Start()
+    {
+        // Create the trail object pool
+        trailPool = new ObjectPool<TrailRenderer>(
+            CreateTrail,
+            trail =>
+            {
+                trail.gameObject.SetActive(true);
+                trail.emitting = false;
+                trail.Clear(); // Clear previous trail data
+            },
+            trail =>
+            {
+                trail.gameObject.SetActive(false);
+            },
+            trail =>
+            {
+                Destroy(trail.gameObject);
+            },
+            false,  // collectionCheck
+            10,     // defaultCapacity
+            50      // maxSize
+        );
+    }
+
+    private TrailRenderer CreateTrail()
+    {
+        TrailRenderer trail = Instantiate(trailPrefab);
+        trail.gameObject.SetActive(false);
+        return trail;
+    }
+
+    private void Update()
+    {
+        if (Time.time >= nextFireTime)
+        {
+            Shoot();
+            nextFireTime = Time.time + fireRate;
+        }
+    }
+
+    private void Shoot()
+    {
+        // Calculate spread
+        float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
+        float spreadY = Random.Range(-verticalSpread, verticalSpread);
+
+        // Direction from muzzle to player with spread
+        Vector3 direction = (player.position - muzzlePoint.position).normalized;
+        direction += new Vector3(spreadX, spreadY, 0);
+
+        if (Physics.Raycast(muzzlePoint.position, direction, out RaycastHit hit, range, playerMask))
+        {
+
+            // Spawn trail
+            TrailRenderer trail = trailPool.Get();
+            trail.transform.position = muzzlePoint.position;
+            trail.emitting = true;
+
+            StartCoroutine(PlayTrail(trail, muzzlePoint.position, hit.point));
+        }
+        else
+        {
+            // Missed hit, send trail to max range
+            Vector3 endPos = muzzlePoint.position + direction.normalized * range;
+            TrailRenderer trail = trailPool.Get();
+            trail.transform.position = muzzlePoint.position;
+            trail.emitting = true;
+
+            StartCoroutine(PlayTrail(trail, muzzlePoint.position, endPos));
+        }
+    }
+
+    private System.Collections.IEnumerator PlayTrail(TrailRenderer trail, Vector3 start, Vector3 end)
+    {
+        float time = 0;
+        float duration = 0.1f;
+        while (time < duration)
+        {
+            trail.transform.position = Vector3.Lerp(start, end, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        trail.transform.position = end;
+
+        yield return new WaitForSeconds(trail.time);
+        trailPool.Release(trail);
+    }
+}
+
+/*
+using UnityEngine;
+using UnityEngine.AI;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Pool;
+public enum PhaseChanges
+{
+	Confirmation,
+ 	FirstStrike,
+  	Engagement,
+   	Reinforcement,
+    FinalAttack,
+    Neutralization,
+    Retreat
+}
 public class EnemyAI : MonoBehaviour
 {
 	private EnemyAnimationHandler animHandler;
@@ -42,6 +167,11 @@ public class EnemyAI : MonoBehaviour
     public int range;
     public int magCapacity;
     public float reloadTime;
+	
+	public Transform muzzle;
+    public Transform target;
+    public float hSpread = 5f;
+    public float vSpread = 5f;
 
     private bool reloading;
     [SerializeField]
@@ -84,7 +214,10 @@ public class EnemyAI : MonoBehaviour
     private void attacking()
     {
         agent.SetDestination(transform.position);
-        transform.LookAt(player);
+        Vector3 direction = player.position - transform.position;
+		direction.y = 0f; // Ignore vertical difference
+		Quaternion lookRotation = Quaternion.LookRotation(direction);
+		transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 200f);
 		
         if (!alreadyShot)
         {
@@ -99,10 +232,17 @@ public class EnemyAI : MonoBehaviour
         alreadyShot = true;
 
         //Spread
-        float spreadX = Random.Range(-horizontalSpread, horizontalSpread);
-        float spreadY = Random.Range(-verticalSpread, verticalSpread);
+        Vector3 aimPoint = player.position + Vector3.up * 1.5f;
+        Vector3 baseDir = (aimPoint - transform.position).normalized;
 
-        Vector3 direction = (player.position - transform.position).normalized + new Vector3(spreadX, spreadY, 0);
+        Quaternion spread = Quaternion.Euler(
+            Random.Range(-verticalSpread, verticalSpread),
+            Random.Range(-horizontalSpread, horizontalSpread),
+            0f
+        );
+        Vector3 direction = spread * baseDir;
+
+	
 
         if (bulletsLeft > 0)
         {
@@ -111,15 +251,19 @@ public class EnemyAI : MonoBehaviour
         
 
         if (Physics.Raycast(transform.position, direction, out rayHit, range, playerMask))
-        {
-            if (rayHit.collider.CompareTag("Player"))
-                {
-                    rayHit.collider.GetComponent<PlayerStats>().damagePlayer(enemyDamage, bulletPen, enemyBulletPower);
-                }
-        }
+		{
+			if (rayHit.collider.CompareTag("Player"))
+			{
+				PlayerStats playerStats = rayHit.collider.GetComponent<PlayerStats>();
+				if (playerStats != null)
+				{
+					playerStats.damagePlayer(enemyDamage, bulletPen, enemyBulletPower);
+				}
+			}
+		}
 
         Invoke("resetShooting", timeBetweenShots);
-
+		
         if (bulletsShot > 0 && bulletsLeft > 0)
         {
             //Executes the shoot function and has cooldown of firerate (TBS)
@@ -131,6 +275,29 @@ public class EnemyAI : MonoBehaviour
         }
 
         bulletsLeft--;
+    }
+	void shoot()
+    {
+        Vector3 aimPoint = target.position + Vector3.up;
+        Vector3 baseDir = (aimPoint - muzzle.position).normalized;
+
+        Quaternion spread = Quaternion.Euler(
+            Random.Range(-vSpread, vSpread),
+            Random.Range(-hSpread, hSpread),
+            0f
+        );
+        Vector3 finalDir = (player.position - muzzle.position).normalized;
+
+        Debug.Log("Direction: " + finalDir);
+
+        if (Physics.Raycast(muzzle.position, finalDir, out RaycastHit hit, range))
+        {
+            Debug.Log("Hit " + hit.collider.name);
+        }
+		if (bulletsLeft > 0)
+        {
+            StartCoroutine(PlayTrail(muzzle.position, rayHit.point, rayHit));
+        }
     }
 
     private void resetShooting()
@@ -232,10 +399,11 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+		shoot();
 		if (!playerInAttackRange && playerInLineOfSight)
 		{
 			chasing();
-			animHandler.guardIsRunning();
+			// animHandler.guardIsRunning();
 		}
 
 		else if (playerInAttackRange && playerInLineOfSight)
@@ -243,13 +411,13 @@ public class EnemyAI : MonoBehaviour
 			
 			if (HasClearShot())
 			{
-				animHandler.guardIsShooting();
+				// animHandler.guardIsShooting();
 				attacking();
 			}
 			else if (!HasClearShot()) 
 			{
 				chasing();
-				animHandler.guardIsRunning();
+				// animHandler.guardIsRunning();
 			}
             
         }
@@ -293,3 +461,4 @@ public class EnemyAI : MonoBehaviour
         return false;
     }
 }
+*/

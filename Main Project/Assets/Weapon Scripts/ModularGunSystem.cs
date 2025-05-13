@@ -58,8 +58,11 @@ public class ModularGunSystem : MonoBehaviour
 	public Vector3 recoilAimCam;
 	
 	//Sound Effect
-	[SerializeField] private AudioClip shootingSoundEffect, equipSoundEffect, partialSoundEffect, fullSoundEffect;
+	[SerializeField] private AudioClip shootingSoundEffect, equipSoundEffect, partialSoundEffect, fullSoundEffect, emptySoundEffect;
 	private AudioSource audioSource;
+	
+	//Muzzle Flash
+	public ParticleSystem muzzleFlash;
 	
     /*
     Private Variables:
@@ -161,12 +164,12 @@ public class ModularGunSystem : MonoBehaviour
         reloading = true;
         if (bulletsLeft > 0)
         {
-			audioSource.PlayOneShot(partialSoundEffect);
+			SoundManager.instance.PlaySoundFX(partialSoundEffect, transform, 1f, 1f);
             Invoke("ReloadFinished", partialReloadTime);
         }
         else
         {
-			audioSource.PlayOneShot(fullSoundEffect);
+			SoundManager.instance.PlaySoundFX(fullSoundEffect, transform, 1f, 1f);
             Invoke("ReloadFinished", fullReloadTime);
         }
 
@@ -263,7 +266,7 @@ public class ModularGunSystem : MonoBehaviour
 	public void weaponEquipDelay()
 	{
 		equipTimer = equipSpeed;
-		audioSource.PlayOneShot(equipSoundEffect);
+		SoundManager.instance.PlaySoundFX(equipSoundEffect, transform, 1f, 1f);
 	}
 	
 	//Scales damage based on distance away from target
@@ -290,8 +293,10 @@ public class ModularGunSystem : MonoBehaviour
         readyToShoot = false;
 		
 		//Sound Effect
-		audioSource.pitch = Random.Range(0.95f,1.05f);
-		audioSource.PlayOneShot(shootingSoundEffect);
+		SoundManager.instance.PlaySoundFX(shootingSoundEffect, transform, 1f, Random.Range(0.95f,1.15f));
+		
+		//Muzzle Flash
+		muzzleFlash.Play();
 		
 		//Camera Recoil
 		camHolder.GetComponentInParent<CamRecoil>().Fire(recoilCam, recoilAimCam, recoilCamSpeed, recoilCamRecoverySpeed);
@@ -322,6 +327,27 @@ public class ModularGunSystem : MonoBehaviour
 			
 			//Checks if raycast hit an enemy
             if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
+            {
+                if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(headDamage*distanceMultiplier), armorPenetration, bulletPower);
+                }
+                else if (rayHit.collider.CompareTag("Body")) // Check if it's a body shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(bodyDamage*distanceMultiplier), armorPenetration, bulletPower);
+                }
+                else if (rayHit.collider.CompareTag("Legs")) // Check if it's a leg shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(legDamage*distanceMultiplier), armorPenetration, bulletPower);
+                }
+                else if (rayHit.collider.CompareTag("Arms")) // Check if it's an arm shot
+                {
+                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(armDamage*distanceMultiplier), armorPenetration, bulletPower);
+                }
+            }
+			
+			//My extremely subpar coding skills at play right here and lack of planning
+			else if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
             {
                 if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
                 {
@@ -484,8 +510,6 @@ public class ModularGunSystem : MonoBehaviour
 		RefillAmmo();
         bulletsLeft = magazineSize;
         readyToShoot = true;
-
-		audioSource = GetComponent<AudioSource>();
 		
         TrailPool = new ObjectPool<TrailRenderer>(
         CreateTrail,
@@ -507,7 +531,10 @@ public class ModularGunSystem : MonoBehaviour
         50     // maxSize
     );
     }
-
+	void OnEnable()
+	{
+		weaponEquipDelay();
+	}
     // Update is called once per frame
     void Update()
     {

@@ -100,8 +100,8 @@ public class GuardAI : MonoBehaviour
     private void switchPointDirection()
 	{
 		swapCooldown -= Time.deltaTime;
-		Debug.Log(pointDirection);
-		Debug.Log(swapCooldown);
+		//Debug.Log(pointDirection);
+		//Debug.Log(swapCooldown);
 		if ((transform.position.x - startingPatrolPoint.position.x) < 0.1 && (transform.position.z - startingPatrolPoint.position.z) < 0.1 && swapCooldown < 0 && !pointDirection)
 		{
 			pointDirection = true;
@@ -202,6 +202,7 @@ public class GuardAI : MonoBehaviour
     }
 
     //SHOOTING
+	
     private void shoot()
     {
         alreadyShot = true;
