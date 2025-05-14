@@ -110,7 +110,7 @@ public class PlayerStats : MonoBehaviour
             int damagedHealth = health - damage;
             health = damagedHealth;
         }
-        //Debug.Log(health);  
+        Debug.Log(health); 
         armorPoints--;
     }
 

@@ -347,23 +347,23 @@ public class ModularGunSystem : MonoBehaviour
             }
 			
 			//My extremely subpar coding skills at play right here and lack of planning
-			else if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) // Check if it's on the Enemy layer
+			if (rayHit.collider.gameObject.layer == LayerMask.NameToLayer("SpawnedEnemy")) // Check if it's on the Enemy layer
             {
                 if (rayHit.collider.CompareTag("Head")) // Check if it's a headshot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(headDamage*distanceMultiplier), armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<EnemyAI>().takeDamage(Mathf.RoundToInt(headDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Body")) // Check if it's a body shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(bodyDamage*distanceMultiplier), armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<EnemyAI>().takeDamage(Mathf.RoundToInt(bodyDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Legs")) // Check if it's a leg shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(legDamage*distanceMultiplier), armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<EnemyAI>().takeDamage(Mathf.RoundToInt(legDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
                 else if (rayHit.collider.CompareTag("Arms")) // Check if it's an arm shot
                 {
-                    rayHit.collider.GetComponentInParent<GuardAI>().takeDamage(Mathf.RoundToInt(armDamage*distanceMultiplier), armorPenetration, bulletPower);
+                    rayHit.collider.GetComponentInParent<EnemyAI>().takeDamage(Mathf.RoundToInt(armDamage*distanceMultiplier), armorPenetration, bulletPower);
                 }
             }
 

@@ -19,7 +19,7 @@ public class EnemyAnimationHandler : MonoBehaviour
 		}
 	}
 	
-    public void guardIsWalking()
+    public void enemyIsWalking()
 	{
 		if (animator != null)
 		{
@@ -29,7 +29,7 @@ public class EnemyAnimationHandler : MonoBehaviour
 		}
 	}
 	
-	public void guardIsRunning()
+	public void enemyIsRunning()
 	{
 		if (animator != null)
 		{
@@ -39,7 +39,7 @@ public class EnemyAnimationHandler : MonoBehaviour
 		}
 	}
 	
-	public void guardIsIdle()
+	public void enemyIsIdle()
 	{
 		if (animator != null)
 		{
@@ -49,7 +49,7 @@ public class EnemyAnimationHandler : MonoBehaviour
 		}
 	}
 	
-	public void guardIsShooting()
+	public void enemyIsShooting()
 	{
 		if (animator != null)
 		{

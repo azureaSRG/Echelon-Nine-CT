@@ -247,7 +247,7 @@ public class PlayerMovement : MonoBehaviour
 		Collider[] guardsInRadius = Physics.OverlapSphere(transform.position, noiseAmount);
 		foreach (Collider c in guardsInRadius)
 		{
-			if (c.CompareTag("Head"))
+			if (c.CompareTag("Head") && c.gameObject.layer == LayerMask.NameToLayer("Enemy"))
 			{
 				c.GetComponentInParent<GuardAI>().changeAlertLevel(increasePerSecond*Time.deltaTime);
 			}
