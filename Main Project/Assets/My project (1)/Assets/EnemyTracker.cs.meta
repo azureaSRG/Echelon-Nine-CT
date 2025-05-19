@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 094f701b8e48d89459cde2438168d9be
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - enemyCanvasGroupPrefab: {instanceID: 0}
+  - enemyIconParent: {instanceID: 0}
+  - playerCamera: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
